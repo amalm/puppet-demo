@@ -1,0 +1,43 @@
+%%This is a very basic article template.
+%%There is just one section and two subsections.
+\documentclass{article}
+
+\begin{document}
+
+\section{Continious Delivery mit Puppet alt. Konfigurationsmangement mit Puppet}
+
+Eine Vielzahl an Applikationen, jede enwickelt mit Agile Methoden von mehreren Teams.
+
+Gebaut wird stündlich oder öfters mit Continous Integration - in unserem Fall Jenkins\cite{Jenkins}.
+
+Die Applikationen sollen automatisch mit verschiedenen Konfigurationen installiert werden und danach - ebenso automatisch - getestet werden.
+
+Da die Applikationen in unterschiedliche Länder eingesetz werden und für jedes Locale getestet werden sollte, multiplizieren sich die Servers.
+
+Nach hoffentlich erfolgreiche Integrationstests sollten die Applikationen auf weitere Servers in QA- und Produktionsstufe installiert und konfiguriert.
+
+Zur guter Letz werden die Applikationen im Clusters eingesetzt.
+
+Für die Installation und Konfiguration wird je Applikation Scripts entwickelt. Fallweise mit Copy/Paste verfahren und divergierende Weiterentwicklung.
+
+Dass war die Ausgangssituation als wir angefangen haben uns mit dem Thema Konfigurationsmanagement auseinander zu setzen.  
+
+\subsection{Entwicklungsumgebung}
+
+Plain text.
+
+\subsection{Another subtitle}
+
+More plain text.
+
+\subsection{Referenzen}
+
+\begin{thebibliography}{9}
+
+\bibitem{Jenkins}
+  Jenkins: An extendable open source continuous integration server.
+  http://jenkins-ci.org/
+  
+\end{thebibliography}
+
+\end{document}
