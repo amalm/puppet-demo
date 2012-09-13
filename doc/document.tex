@@ -32,12 +32,17 @@ escapeinside={\%*}{*)}          % if you want to add a comment within your code
 \usepackage{amsmath}
 \usepackage{cancel}
 %\usepackage{mathcomp}
-\usepackage{booktabs} 
+%\usepackage{booktabs} 
 \usepackage{subfigure}
 \usepackage{url}
+%\usepackage[document]{ragged2e}
+
 \usepackage[numbers]{natbib}
 %\usepackage{tikz}
 %\usetikzlibrary{shapes,arrows}
+
+\clubpenalty = 10000
+\widowpenalty = 10000 \displaywidowpenalty = 10000
 \usepackage[top=2.5cm, bottom=2cm, left=2.5cm, right=2.5cm]{geometry} 
 \title{Deliver with Puppet}
 \author{Anders Malmborg and Michael Haslgruebler}
@@ -89,48 +94,60 @@ escapeinside={\%*}{*)}          % if you want to add a comment within your code
 
 \pagestyle{plain}
 
-\section{Ausgangssituation}
+\section{Einleitung}
 
-Eine Vielzahl an Applikationen, jede enwickelt mit Agile Methoden von mehreren Teams.
-Gebaut wird stündlich oder öfters mit Continous Integration - in unserem Fall \cite{jenkins}.
+\subsection{Ausgangssituation}
 
-Die Applikationen sollen automatisch mit verschiedenen Konfigurationen installiert werden und danach - ebenso automatisch - getestet werden.
-Da die Applikationen in unterschiedliche Länder eingesetz werden und für jedes Locale getestet werden sollte, multiplizieren sich die Servers.
-Nach hoffentlich erfolgreiche Integrationstests sollten die Applikationen auf
-weitere Servers in QA- und Produktionsstufe installiert und konfiguriert.
-Zur guter Letz werden die Applikationen im Clusters eingesetzt.
-Für die Installation und Konfiguration wird je Applikation Scripts entwickelt. Fallweise mit Copy/Paste verfahren und divergierende Weiterentwicklung.
-Dass war die Ausgangssituation als wir angefangen haben uns mit dem Thema Konfigurationsmanagement auseinander zu setzen. Wir haben uns für 
-\cite{puppet} entschieden, eine andere Möglichkeit wäre \cite{chef}.
+Eine prekäre Situation, eine mehrere Teams entwickeln, unabhängig voneinander mit agilen Methoden, eine Vielzahl von modularen Frameworks und Applikationen. Mithilfe von \cite{jenkins} wird stündlich kompiliert und integriert um sicherzustellen dass das alles auch zusammenpasst. 
+
+Jede Applikation beinhaltet außerdem Konfigurationen, im banalsten Fall sind das Einstellungen für den Zugriff auf eine Datenbank, im komplexesten Fall Schalter welche Teilfunktionalitäten aktivieren. Die Installation und Konfiguration gestaltet sich aber mit zunehmender Größe der Applikation jedoch so komplex, dass das initiale Setup einer Applikation schon Stunden dauern kann, auch wenn schon eine handvoll Scripts einen Großteil der Tätigkeiten automatisierten. 
+
+\begin{wrapfigure}{l}{5cm}
+\vspace{-15pt}
+\begin{boxedminipage}{5cm}
+Eine Installation von der selben Anwendung sieht auf verschiedenen Maschinen unterschiedlich aus  - \textbf{frei nach dem Motto viele Wege führen nach Rom - aber welcher ist der Beste?}
+\end{boxedminipage}
+\vspace{-15pt}
+\end{wrapfigure}
+Man kann außerdem davon ausgehen, das die gleiche Installation von der selben Anwendung auf zwei Rechner unterschiedlich aussieht -- frei nach dem Motto viele Wege führen nach Rom. Zusätzlich dazu sind die Anwendungen im internationalen Einsatz, werden mehrsprachig getestet und betrieben und die laufende Entwicklung erweitert ständig die Funktionalität. 
+
+Kurz zusammengefasst, Veränderungen passieren am laufenden Band. Für die reine Softwareentwicklung ist Continous Integration mit Jenkins und Co eine Toollandschaft entstanden welche das Problem löst. Für die Betriebsführung und Konfiguration haben wir uns nach einer Lösung umgesehen und mit \cite{puppet} und \cite{chef} Wege gefunden dieser ständigen Veränderung habhaft zu werden.
 
 \subsection{Ziel}
 
-\ldots
-
-
-
-\subsection{Entwicklungsumgebung}
-
-Für die Entwicklung von Puppet Module und Manifeste (mehr dazu gleich) kann \cite{geppeto} installiert werden.
-Puppet kann unter für Unix mit einem Paketmanager installiert werden oder für Windows von \cite{puppetlabs} runtergeladen werden.
-Für die Test von Puppet Module und Manifeste wird hier \cite{vagrant} verwendet. Vagrant setzt auf \cite{virtualbox} auf. 
-Wie Puppet können beide mit dem Paketmanager unter Unix installiert werden oder von der Downloadseite runtergeladen werden.
-
-\subsection{Demo: Apache und eine Webseite mit Puppet installieren}
-
-\subsubsection{Testbox mit Vagrant}
-
+Ziel unserer Lösung, für die Betriebsführung und Konfiguration, sollte es sein, die aktuellen Entwicklungen an den Mann bzw. Server zu bringen, vollautomatisiert. 
 \begin{wrapfigure}{r}{5cm}
+\vspace{-10pt}
+\begin{boxedminipage}{5cm}
+Konfigurationsfehler durch Divergenz werden in allen Stages des Softwarelifecycleprozesses durch die Vollautomatisierung vermieden - \textbf{entweder funktioniert es überall oder nirgends}
+\end{boxedminipage}
+\vspace{-10pt}
+\end{wrapfigure}
+ In der Entwicklung heißt das in erster Linie Softwarecode der commited wird, der gebaut werden kann und die automatisierten Tests besteht soll auch deployed werden. Damit können wir gewährleisten bzw. überprüfen das die Software zu jedem Zeitpunkt einsatzbereit ist und nicht nur auf einem Entwicklungs-PC funktioniert.
+
+Für die Qualitätssicherung heißt das, dass ein Softwarepaket einer Anwendung bei Übergabe von der Entwicklung nur einmal zentral hinterlegt werden muss und alle QA Server in allen möglichen Konfigurationsarten und Sprachen automatisch auf den neusten Stand der Anwendung gebracht werden.
+
+Für den Produktiveinsatz heißt dass das auch hier alle Server auf Knopfdruck aktualisiert werden können und die Server einen definierten und bereits in QA getesten Zustand sind und bleiben. 
+
+Um diese Ziele zu erreichen sind einige Veränderungen notwendig. In diesem Artikel möchten wir uns auf die notwendigen Änderungen im Entwicklungsprozess eingehen und wie wir diese mit Puppet umgesetzt haben.
+
+\section{Entwicklung mit Puppet}
+
+Puppet kann unter für Unix mit einem Paketmanager installiert werden oder für Windows von \cite{puppetlabs} runtergeladen werden. Für die Entwicklung von Puppet Module und Manifeste, mehr dazu später, bietet sich \cite{geppeto} an, welches als Standaloneapplikation installiert werden kann oder in eine bestehende Eclipseinstallation als Plugin hinzugefügt werden kann.
+
+Für die Entwicklung und Tests von Puppet Modulen und Manifeste wird hier \cite{vagrant} verwendet. Vagrant ist eine Konfigurationstool für die Verwaltung von Virtuellen Maschinen mit \cite{virtualbox}. Es kann in weiterer Folge auch Puppet, Chef oder Shell Scripts benutzen kann um die virtuelle Maschine zu konfigurieren. Analog zu Puppet können Vagrant und Virutalbox via Paketmanager für Linux installiert werden oder von den entsprechenden Downloadseiten runtergeladen werden.
+
+\subsection{Testbox mit Vagrant}
+
+\begin{wrapfigure}{l}{5cm}
 \vspace{-15pt}
-%\vskip 3cm
 \begin{boxedminipage}{5cm}
 Eine Liste mit vorgefertigten Vagrant Boxen gibt es übrigens auf \url{http://www.vagrantbox.es/}
 \end{boxedminipage}
-%\vspace{+30pt}
-%\vskip 2cm
+\vspace{-15pt}
 \end{wrapfigure}
 
-Nachdem Vagrant und VirtualBox installiert worden sind, können wir eine Box zum Testen aufsetzen. In unserem Fall verwenden wir eine 64 Bit Version von Debian Squeeze. Diese wurde von uns für dieses Tutorial neu erstellt und beinhaltet eine Minimalinstallation mit den für Vagrant üblichen Vorbereitungen: SSH Key, VirtualBox Guest Additions, Puppet und Ruby.
+Nachdem Vagrant und VirtualBox installiert worden sind, können wir eine Box zum Testen aufsetzen. In unserem Fall verwenden wir eine 64 Bit Version von Debian Squeeze. Diese wurde von uns für diesen Artikel neu erstellt und beinhaltet eine Minimalinstallation mit den für Vagrant üblichen Vorbereitungen: SSH Key Setup, VirtualBox Guest Additions, Puppet und Ruby. \url{http://vagrantup.com/v1/docs/base_boxes.html}
 
 \begin{lstlisting}[caption=Download der Vagrant Box, label=vagrant-add]
 vagrant box add debian_squeeze_64 http://dl.dropbox.com/u/937870/VMs/squeeze64.box
@@ -138,10 +155,10 @@ vagrant box add debian_squeeze_64 http://dl.dropbox.com/u/937870/VMs/squeeze64.b
 
 %\begin{center}
 %\fbox{%
-\begin{wrapfigure}{r}{6cm}
+\begin{wrapfigure}{r}{4.5cm}
 \vspace{-20pt}
 %\vskip 3cm
-\begin{boxedminipage}{6cm}
+\begin{boxedminipage}{4.5cm}
  Die Vagrant Boxen werden unter Unix in installiert. \lstinline!$HOME/.vagrant.d/boxes!
 Falls man dies ändern will kann man die Umgebungsvariable \lstinline$VAGRANT_HOME$ setzen:
 \begin{lstlisting}[label=vagrant-home,frame=none,numbers=none]
@@ -149,6 +166,7 @@ export VAGRANT_HOME=$HOME/vagrant_home
 \end{lstlisting}
 \end{boxedminipage}
 %\vspace{+30pt}
+\vspace{-20pt}
 %\vskip 2cm
 \end{wrapfigure}
 %\end{minipage}}
@@ -168,13 +186,30 @@ Diese initiale Konfiguration beinhaltet alles an was Vagrant zum Konfigurieren u
 vagrant up
 \end{lstlisting}
 
+\subsection{Puppet Einführung}
 
-\begin{wrapfigure}{r}{0.5\textwidth}
+Puppet benutzt eine Domain-Specific-Language um den Zustand eines System zu beschreiben. Diese Beschreibung wird in einem Manifest festgehalten. Ein Großteil dieser Manifeste mach die Definition von Ressourcen aus, eine Ressource ist ein atomarer Typ eines Systems, es entspricht einer physisches Identität eines Computersystems. Ein Beispiel für eine solche Ressource, wäre ein Benutzer oder eine Datei. Im Beispiel\reffig{puppet-user}, sehen wir wie wir einen Benutzer und eine Datei mit der Puppet DSL anlegen.
+
+\begin{figure}
   \begin{center}
-    \includegraphics[width=0.5\textwidth]{images/user.pdf}
+    \includegraphics[width=0.7\textwidth]{images/user.pdf}
   \end{center}
   \caption{User mit Puppet anlegen}
-\end{wrapfigure}
+  \label{puppet-user}
+\end{figure}
+
+\section{Autoren}
+
+\begin{table}
+\begin{tabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}
+\hline
+Anders Malmborg
+&
+Michael Haslgrübler
+\\
+\hline
+\end{tabular}
+\end{table}
 
 \bibliographystyle{apalike2}
 \bibliography{document}
