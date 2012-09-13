@@ -186,6 +186,11 @@ Diese initiale Konfiguration beinhaltet alles an was Vagrant zum Konfigurieren u
 vagrant up
 \end{lstlisting}
 
+Nachdem die virtuelle Machine gestartet worden ist, können wir mit ssh einsteigen\reflst{vagrant-ssh}.
+\begin{lstlisting}[caption=Mit ssh in der Vagrant Maschine einsteigen, label=vagrant-ssh]
+vagrant ssh
+\end{lstlisting}
+ 
 \subsection{Puppet Einführung}
 
 Puppet benutzt eine Domain-Specific-Language um den Zustand eines System zu beschreiben. Diese Beschreibung wird in einem Manifest festgehalten. Ein Großteil dieser Manifeste mach die Definition von Ressourcen aus, eine Ressource ist ein atomarer Typ eines Systems, es entspricht einer physisches Identität eines Computersystems. Ein Beispiel für eine solche Ressource, wäre ein Benutzer oder eine Datei. Im Beispiel\reffig{puppet-user}, sehen wir wie wir einen Benutzer und eine Datei mit der Puppet DSL anlegen.
