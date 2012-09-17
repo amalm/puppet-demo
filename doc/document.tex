@@ -131,14 +131,77 @@ Für den Produktiveinsatz heißt dass das auch hier alle Server auf Knopfdruck a
 
 Um diese Ziele zu erreichen sind einige Veränderungen notwendig. In diesem Artikel möchten wir uns auf die notwendigen Änderungen im Entwicklungsprozess eingehen und wie wir diese mit Puppet umgesetzt haben.
 
-\section{Entwicklung mit Puppet}
+\subsection{Puppet Einführung}
 
-Puppet kann unter für Unix mit einem Paketmanager installiert werden oder für Windows von \cite{puppetlabs} runtergeladen werden. Für die Entwicklung von Puppet Module und Manifeste, mehr dazu später, bietet sich \cite{geppeto} an, welches als Standaloneapplikation installiert werden kann oder in eine bestehende Eclipseinstallation als Plugin hinzugefügt werden kann.
+Puppet benutzt eine Domain-Specific-Language(DSL) um den Zustand eines System zu beschreiben. Der Code wird organisiert in Manifeste und Module.
 
-Für die Entwicklung und Tests von Puppet Modulen und Manifeste wird hier \cite{vagrant} verwendet. Vagrant ist eine Konfigurationstool für die Verwaltung von Virtuellen Maschinen mit \cite{virtualbox}. Es kann in weiterer Folge auch Puppet, Chef oder Shell Scripts benutzen kann um die virtuelle Maschine zu konfigurieren. Analog zu Puppet können Vagrant und Virutalbox via Paketmanager für Linux installiert werden oder von den entsprechenden Downloadseiten runtergeladen werden.
+Ein Manifest ist ein Puppet "Program". Module sind für die Puppet-EntwicklerIn ähnlich wie Libraries für eine Java-EntwicklerIn. Ein Großteil der Manifeste und Module mach die Definition von Ressourcen aus, eine Ressource ist ein atomarer Typ eines Systems, es entspricht einer physisches Identität eines Computersystems. Ein Beispiel für eine solche Ressource, wäre ein Benutzer oder eine Datei. In \reflst{puppet-add-user} wird der Ressource user \lstinline$puppetdemo$ und dazugehörige Ressource file \lstinline$/home/puppetdemo$ definiert. Der Aufruf \lstinline$sudo puppet apply manifest/user.pp$ führt es aus und muss mit 'sudo' aufgerufen werden damit Verzeichnis und Benutzer angelegt werden können.
+Mit \lstinline$puppet resource user puppetdemo$ wird die Informationen zum neu angelegten Benutzer ausgegeben.
+
+\begin{lstlisting}[caption=User mit Puppet anlegen, label=puppet-add-user]
+$ cat manifest/user.pp 
+node default {
+
+    user {
+        'puppetdemo' :
+            ensure => present,
+            home => '/home/puppetdemo',
+            shell => '/bin/bash',
+    }
+    file {
+        '/home/puppetdemo' :
+        ensure => 'directory',
+        owner => 'puppetdemo',
+        group => 'puppetdemo',
+    }
+}
+$ sudo puppet apply manifest/user.pp 
+notice: /Stage[main]//Node[default]/User[puppetdemo]/ensure: created
+notice: /Stage[main]//Node[default]/File[/home/puppetdemo]/ensure: created
+notice: Finished catalog run in 0.36 seconds
+$ puppet resource user puppetdemo
+user { 'puppetdemo':
+  ensure => 'present',
+  gid    => '1004',
+  home   => '/home/puppetdemo',
+  shell  => '/bin/bash',
+  uid    => '1002',
+}
+\end{lstlisting}
+
+Eine Aufzählung der vom Puppet unterstützen Ressourcen wird mit \lstinline$puppet resource --types$ ausgegeben. Die Ressourcen sind im Core Types Cheat Sheet \url{http://docs.puppetlabs.com/puppet_core_types_cheatsheet.pdf} gut beschrieben.
+
+%Im Beispiel\reffig{puppet-user}, sehen wir wie wir einen Benutzer und eine Datei mit der Puppet DSL anlegen.
+
+%\begin{figure}
+%  \begin{center}
+%    \includegraphics[width=0.7\textwidth]{images/user.pdf}
+%  \end{center}
+%  \caption{User mit Puppet anlegen}
+%  \label{puppet-user}
+%\end{figure}
+
+
+Für die Entwicklung von Puppet Module und Manifeste bietet sich \cite{geppeto} an. Geppeto bringt Code Completion und Syntax Highlighting mit und kommt als Standaloneapplikation oder als Plugin für eine bestehende Eclipseinstallation. 
+
+
+%Der Manifest user.pp legen wir in einem Verzeichnis manifests ab\reffig{puppet-manifestdir}.
+
+%\begin{figure}
+%  \begin{center}
+%    \includegraphics[width=0.7\textwidth]{images/manifestdir.pdf}
+%  \end{center}
+%  \caption{Puppet Manifest Verzeichnis}
+%  \label{puppet-manifestdir}
+%\end{figure}
+
 
 \subsection{Testbox mit Vagrant}
+Für die Entwicklung und Tests von Puppet Modulen und Manifeste empfielt sich eine virtuelle Machine. Puppet Labs stellt sollche für VMware und VirtualBox zur Verfügung unter \url{http://info.puppetlabs.com/download-learning-puppet-VM.html}. 
 
+Eine andere Möglichkeit ist \cite{vagrant}. Vagrant ist eine Konfigurationstool für die Verwaltung von Virtuellen Maschinen mit VirtualBox. Es kann in weiterer Folge auch Puppet, Chef oder Shell Scripts benutzen kann um die virtuelle Maschine zu konfigurieren. Analog zu Virtualbox kann Vagrant via Paketmanager für Linux installiert werden oder von den entsprechenden Downloadseiten runtergeladen werden.Wir verwenden für diesen Artikel Vagrant. 
+
+Vagrant bietet 
 \begin{wrapfigure}{l}{5cm}
 \vspace{-15pt}
 \begin{boxedminipage}{5cm}
@@ -172,7 +235,7 @@ export VAGRANT_HOME=$HOME/vagrant_home
 %\end{minipage}}
 %\end{center}
 %\label{test}
-  
+ 
 
 Nachdem dem Download steht uns jetzt die  Vagrant Box \lstinline$debian_squeeze_64$ zur Verfügung. Nun können wir in ein beliebiges Verzeichnis wechsel und eine initiale Konfiguration basierend auf der Box anlegen\reflst{vagrant-init}.
 
@@ -191,17 +254,102 @@ Nachdem die virtuelle Machine gestartet worden ist, können wir mit ssh einsteig
 vagrant ssh
 \end{lstlisting}
  
-\subsection{Puppet Einführung}
+Jetzt aktivieren wir die Puppetkonfiguration für unseren Vagrantbox. Vagrant liegt im Verzeichnis wo vagrant init durchgeführt haben, eine Datei Vagrantfile.
+Öffne die Datei und lösche die Kommentarzeichen für die Sektion \lstinline$config.vm.provision :puppet$. Weiter tragen wir unter \lstinline$puppet.manifests_path$ und \lstinline$puppet.module_path$ ein wo Manifeste und Module liegen. Als \lstinline$puppet.manifest_file$ tragen wir \lstinline$user.pp$ ein. Zum testen von der Apacheinstallation wird mit \lstinline$config.vm.forward_port 80, 160$ Port 80 des Guests über Port 160 vom Host erreicht.
+  
+\begin{lstlisting}[caption=Puppet Provisioning in Vagrantfile konfigurieren, label=vagrantprovisioning]
+  # Forward a port from the guest to the host, which allows for outside
+  # computers to access the VM, whereas host only networking does not.
+  config.vm.forward_port 80, 160  
+  config.vm.provision :puppet do |puppet|
+    puppet.manifests_path = "~/git/puppet-demo/puppet/manifests"
+    puppet.module_path = "~/git/puppet-demo/puppet/modules"
+    puppet.manifest_file  = "user.pp"
+  end
+\end{lstlisting} 
 
-Puppet benutzt eine Domain-Specific-Language um den Zustand eines System zu beschreiben. Diese Beschreibung wird in einem Manifest festgehalten. Ein Großteil dieser Manifeste mach die Definition von Ressourcen aus, eine Ressource ist ein atomarer Typ eines Systems, es entspricht einer physisches Identität eines Computersystems. Ein Beispiel für eine solche Ressource, wäre ein Benutzer oder eine Datei. Im Beispiel\reffig{puppet-user}, sehen wir wie wir einen Benutzer und eine Datei mit der Puppet DSL anlegen.
+Bei dieser Änderung müssen wir den Box neu laden\reflst{vagrant-reload}. Der Puppet Manifest user.pp wir jetzt ausgeführt. Mit \lstinline$puppet ssh$ steigen wir und verifizieren dass der User 'puppetdemo' mit Home-Verzeichis /home/puppetdemo vorhanden ist
 
+\begin{lstlisting}[caption=Vagrant Box neu laden, label=vagrant-reload]
+vagrant reload
+notice: /Stage[main]//Node[default]/User[puppetdemo]/ensure: created
+notice: /Stage[main]//Node[default]/File[/home/puppetdemo]/ensure: created
+notice: Finished catalog run in 0.35 seconds
+
+$ vagrant ssh
+Welcome to your Vagrant-built virtual machine.
+
+$ sudo su - puppetdemo
+puppetdemo@precise32:~$ pwd
+/home/puppetdemo
+\end{lstlisting}
+
+Mit \lstinline$vagrant provisioning$ kann der Puppet Manifest erneut ausgeführt werden. Ohne Änderungen im Manifest oder die virtuell Machine passiert nichts. Würde der Benutzer \lstinline$puppetdemo$ zum Beispiel entfernt, wird er wieder angelegt.
+Will man der Puppet Manifest in der virtuellen Machine ausführen, ist der \lstinline$puppet.manifests_path$ als \lstinline$/tmp/vagrant-puppet/manifest$ gemounted\reflst{vagrant-apply}.
+
+\begin{lstlisting}[caption=Puppet apply im Box, label=vagrant-apply]
+$ sudo puppet apply /tmp/vagrant-puppet/manifests/user.pp
+No LSB modules are available.
+notice: Finished catalog run in 0.04 seconds
+$ sudo deluser puppetdemo
+Removing user `puppetdemo' ...
+Warning: group `puppetdemo' has no more members.
+Done.
+$ sudo puppet apply /tmp/vagrant-puppet/manifests/user.pp
+No LSB modules are available.
+notice: /Stage[main]//Node[default]/User[puppetdemo]/ensure: created
+notice: Finished catalog run in 0.39 seconds
+\end{lstlisting}
+
+Der Vagrant-Box wird mit \lstinline$vagrant suspend$ angehalten, \lstinline$vagrant resume$ startet ihn wieder. Will man ganz von vorne anfagnen, entfernt \lstinline$vagrant destroy$ den Box. Die Datei Vagrantfile wird erhalten, damit kann man mit \lstinline$vagrant up$ den Box inklusive Provisioning mit Puppet wieder aufsetzen.
+
+\section{Apache Webserver und Applikation mit HTML und JavaScript mit Puppet installieren}
+Nachdem wir die Grundlagen von Puppet und Vagrant jetz gelernt haben, wird jetzt eine Apache Webserver installiert. Da es wahrscheinlich ist, dass Apache für andere Applikationen auch genutzt wird, wird der Puppet Code dafür in einem Module abgelegt. Module sind wiederverwendbare Einheiten vom Code und Data. Die Struktur eines Modules ist auf \url{http://docs.puppetlabs.com/learning/modules1.html} beschrieben\reffig{module_structure}. Siehe auch Puppet Module Cheat Sheet \url{docs.puppetlabs.com/module_cheat_sheet.pdf}.
 \begin{figure}
   \begin{center}
-    \includegraphics[width=0.7\textwidth]{images/user.pdf}
+    \includegraphics[width=0.7\textwidth]{images/module_structure.pdf}
   \end{center}
-  \caption{User mit Puppet anlegen}
-  \label{puppet-user}
+  \caption{Puppet Module Struktur}
+  \label{module_structure}
 \end{figure}
+
+
+Auf die gleiche Ebene wie der manifest-Verzeichnis legen wir \lstinline$modules$ an. Darunter \lstinline$apache/manifests/init.pp$\reflst{apache-module}.
+\begin{lstlisting}[caption=Verzeichnisstruktur für den apache-Module, label=apache-module]
+
+\end{lstlisting}
+
+\lstinline$modules/apache/manifests/init.pp$ ist recht kompakt und zeigt auf einen Blick eine große Vorteil mit Puppet. Die Ressourcen \lstinline$package$ und \lstinline$service$ verstecken die Komplexität und platformspezifische Vorgen für Installation von Pakete und Starten von Dienste\reflst{apache-init.pp}.
+\begin{lstlisting}[caption=modules/apache/manifests/init.pp, label=apache-init.pp]
+$ cat modules/apache/manifests/init.pp 
+class apache {
+        package {
+                'apache2' :
+                        ensure => present,
+        }
+        service {
+                'apache2' :
+                        ensure => running,
+                        require => Package["apache2"]
+        }
+}
+\end{lstlisting}
+
+Um der Module in einem Manifest zu verwenden reicht lediglich \lstinline$include apache$\reflst{setupapache.pp}.
+\begin{lstlisting}[caption=manifests/setupapache.pp, label=setupapache.pp]
+$ cat manifests/setupapache.pp 
+include apache
+\end{lstlisting}
+
+In Vagrantfile ändern wir jetzt die Zeile \lstinline$puppet.manifest_file  = "user.pp"$ auf \lstinline$puppet.manifest_file  = "setupapache.pp"$ und geben \lstinline$vagrant provision$ ein\reflst{provisioning_apache}.
+
+\begin{lstlisting}[caption=vagrant provisioning für Apache, label=provisioning_apache]
+$ vagrant provision
+[default] Running provisioner: Vagrant::Provisioners::Puppet...
+[default] Running Puppet with /tmp/vagrant-puppet/manifests/setupapache.pp...
+notice: /Stage[main]/Apache/Package[apache2]/ensure: ensure changed 'purged' to 'present'
+notice: Finished catalog run in 97.25 seconds
+\end{lstlisting}
 
 \section*{Autoren}
 

@@ -1,13 +1,14 @@
 node default {
-
     user {
-        'cross' :
+        'puppetdemo' :
             ensure => present,
-            home => '/home/cross',
+            home => '/home/puppetdemo',
+            shell => '/bin/bash',
     }
     file {
-        '/home/cross' :
-            ensure => directory,
+        '/home/puppetdemo' :
+        ensure => 'directory',
+        owner => 'puppetdemo',
+        group => 'puppetdemo',
     }
-    notice("Created user 'cross''")    
 }
