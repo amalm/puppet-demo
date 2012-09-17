@@ -4,3 +4,5 @@ document.idx
 document.log
 document.aux
 document.blg
+document.out
+header/*.aux

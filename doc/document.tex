@@ -1,86 +1,12 @@
 \documentclass[12pt,a4paper,ngerman]{article}
-\usepackage{ifpdf}
-\usepackage[utf8x]{inputenc}
-\usepackage[ngerman]{babel}
-\usepackage{fancyhdr}
-\usepackage[pdftex]{graphicx}
-\usepackage{graphicx}
-\usepackage{amsfonts}
-\usepackage{listings}
-\usepackage{wrapfig}
-\usepackage{boxedminipage}
-\usepackage{color}
-\lstset{ %
-language=sh,                % choose the language of the code
-basicstyle=\scriptsize,       % the size of the fonts that are used for the code
-numbers=left,                   % where to put the line-numbers
-numberstyle=\scriptsize,      % the size of the fonts that are used for the line-numbers
-stepnumber=1,                   % the step between two line-numbers. If it's 1 each line will be numbered
-numbersep=5pt,                  % how far the line-numbers are from the code
-backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
-showspaces=false,               % show spaces adding particular underscores
-showstringspaces=false,         % underline spaces within strings
-showtabs=false,                 % show tabs within strings adding particular underscores
-%extendedchars=false,
-frame=single,			% adds a frame around the code
-tabsize=2,			% sets default tabsize to 2 spaces
-captionpos=b,			% sets the caption-position to bottom
-breaklines=true,		% sets automatic line breaking
-breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
-escapeinside={\%*}{*)}          % if you want to add a comment within your code
-}
-\usepackage{amsmath}
-\usepackage{cancel}
-%\usepackage{mathcomp}
-%\usepackage{booktabs} 
-\usepackage{subfigure}
-\usepackage{url}
-%\usepackage[document]{ragged2e}
+\include{header/general}
+\include{header/listings}
+\include{header/pagesetup}
+\include{header/hyperref}
+\include{header/commands}
 
-\usepackage[numbers]{natbib}
-%\usepackage{tikz}
-%\usetikzlibrary{shapes,arrows}
-
-\clubpenalty = 10000
-\widowpenalty = 10000 \displaywidowpenalty = 10000
-\usepackage[top=2.5cm, bottom=2cm, left=2.5cm, right=2.5cm]{geometry} 
-\title{Deliver with Puppet}
-\author{Anders Malmborg and Michael Haslgruebler}
-
-\makeatletter
-\fancypagestyle {plain}{
-  \lhead {}
-  \rhead {\@title}
-  \cfoot {}
-  \lfoot {\copyright 2012, Anders Malmborg und Michael Haslgrübler}
-  \rfoot {\thepage}
-  \renewcommand {\footrulewidth }{1pt}
-}
-\makeatother
-
-%\textwidth17cm
-%\textheight24.5cm  
-%\textwidth24.5cm
-%\textheight17cm  
-\headheight15pt
-
-\makeatletter
-\ifpdf
-\pdfinfo {
-	/Author (\@author)
-	/Title (\@title)
-	/Subject ()
-	/Keywords ()
-}
-\fi
-\makeatother
-
-
-\newcommand{\reffig}[1]{, siehe. Abbildung~\ref{#1}}
-\newcommand{\reflst}[1]{, siehe. Listing~\ref{#1}}
 
 \begin{document}
- % meine jabber ID michael (at) jabber.haslgruebler.eu
  \begin{titlepage}
      \begin{flushright}{\huge Deliver with Puppet}
 	\end{flushright}
@@ -136,9 +62,9 @@ Um diese Ziele zu erreichen sind einige Veränderungen notwendig. In diesem Arti
 Puppet benutzt eine Domain-Specific-Language(DSL) um den Zustand eines System zu beschreiben. Der Code wird organisiert in Manifeste und Module.
 
 Ein Manifest ist ein Puppet "Program". Module sind für die Puppet-EntwicklerIn ähnlich wie Libraries für eine Java-EntwicklerIn. Ein Großteil der Manifeste und Module mach die Definition von Ressourcen aus, eine Ressource ist ein atomarer Typ eines Systems, es entspricht einer physisches Identität eines Computersystems. Ein Beispiel für eine solche Ressource, wäre ein Benutzer oder eine Datei. In \reflst{puppet-add-user} wird der Ressource user \lstinline$puppetdemo$ und dazugehörige Ressource file \lstinline$/home/puppetdemo$ definiert. Der Aufruf \lstinline$sudo puppet apply manifest/user.pp$ führt es aus und muss mit 'sudo' aufgerufen werden damit Verzeichnis und Benutzer angelegt werden können.
-Mit \lstinline$puppet resource user puppetdemo$ wird die Informationen zum neu angelegten Benutzer ausgegeben.
+Mit \lstinline$puppet resource user puppetdemo$ wird die Informationen zum neu angelegten Benutzer ausgegeben.\reflst{puppet-add-user-info}
 
-\begin{lstlisting}[caption=User mit Puppet anlegen, label=puppet-add-user]
+\begin{lstlisting}[language=sh,caption=User mit Puppet anlegen, label=puppet-add-user]
 $ cat manifest/user.pp 
 node default {
 
@@ -159,9 +85,10 @@ $ sudo puppet apply manifest/user.pp
 notice: /Stage[main]//Node[default]/User[puppetdemo]/ensure: created
 notice: /Stage[main]//Node[default]/File[/home/puppetdemo]/ensure: created
 notice: Finished catalog run in 0.36 seconds
-$ puppet resource user puppetdemo
+\end{lstlisting}
+\begin{lstlisting}[language=puppet,caption=Anzeige der Benutzerinformation in Puppet, label=puppet-add-user-info]
 user { 'puppetdemo':
-  ensure => 'present',
+  ensure => present,
   gid    => '1004',
   home   => '/home/puppetdemo',
   shell  => '/bin/bash',
@@ -201,7 +128,6 @@ Für die Entwicklung und Tests von Puppet Modulen und Manifeste empfielt sich ei
 
 Eine andere Möglichkeit ist \cite{vagrant}. Vagrant ist eine Konfigurationstool für die Verwaltung von Virtuellen Maschinen mit VirtualBox. Es kann in weiterer Folge auch Puppet, Chef oder Shell Scripts benutzen kann um die virtuelle Maschine zu konfigurieren. Analog zu Virtualbox kann Vagrant via Paketmanager für Linux installiert werden oder von den entsprechenden Downloadseiten runtergeladen werden.Wir verwenden für diesen Artikel Vagrant. 
 
-Vagrant bietet 
 \begin{wrapfigure}{l}{5cm}
 \vspace{-15pt}
 \begin{boxedminipage}{5cm}
@@ -212,54 +138,44 @@ Eine Liste mit vorgefertigten Vagrant Boxen gibt es übrigens auf \url{http://ww
 
 Nachdem Vagrant und VirtualBox installiert worden sind, können wir eine Box zum Testen aufsetzen. In unserem Fall verwenden wir eine 64 Bit Version von Debian Squeeze. Diese wurde von uns für diesen Artikel neu erstellt und beinhaltet eine Minimalinstallation mit den für Vagrant üblichen Vorbereitungen: SSH Key Setup, VirtualBox Guest Additions, Puppet und Ruby. \url{http://vagrantup.com/v1/docs/base_boxes.html}
 
-\begin{lstlisting}[caption=Download der Vagrant Box, label=vagrant-add]
+\begin{lstlisting}[language=sh,caption=Download der Vagrant Box, label=vagrant-add]
 vagrant box add debian_squeeze_64 http://dl.dropbox.com/u/937870/VMs/squeeze64.box
 \end{lstlisting}
 
-%\begin{center}
-%\fbox{%
 \begin{wrapfigure}{r}{4.5cm}
 \vspace{-20pt}
-%\vskip 3cm
 \begin{boxedminipage}{4.5cm}
  Die Vagrant Boxen werden unter Unix in installiert. \lstinline!$HOME/.vagrant.d/boxes!
 Falls man dies ändern will kann man die Umgebungsvariable \lstinline$VAGRANT_HOME$ setzen:
-\begin{lstlisting}[label=vagrant-home,frame=none,numbers=none]
+\begin{lstlisting}[language=sh,label=vagrant-home,frame=none,numbers=none]
 export VAGRANT_HOME=$HOME/vagrant_home
 \end{lstlisting}
 \end{boxedminipage}
-%\vspace{+30pt}
 \vspace{-20pt}
-%\vskip 2cm
 \end{wrapfigure}
-%\end{minipage}}
-%\end{center}
-%\label{test}
  
 
 Nachdem dem Download steht uns jetzt die  Vagrant Box \lstinline$debian_squeeze_64$ zur Verfügung. Nun können wir in ein beliebiges Verzeichnis wechsel und eine initiale Konfiguration basierend auf der Box anlegen\reflst{vagrant-init}.
 
-\begin{lstlisting}[caption=Vagrant initialisieren, label=vagrant-init]
+\begin{lstlisting}[language=sh,caption=Vagrant initialisieren, label=vagrant-init]
 vagrant init debian_squeeze_64
 \end{lstlisting}
 
 Diese initiale Konfiguration beinhaltet alles an was Vagrant zum Konfigurieren und Starten der Maschine braucht, es sind keine weiteren Einstellungen mehr nötig und wir können diese starten\reflst{vagrant-up}.
 
-\begin{lstlisting}[caption=Starten der Vagrant Maschine, label=vagrant-up]
+\begin{lstlisting}[language=sh,caption=Starten der Vagrant Maschine, label=vagrant-up]
 vagrant up
 \end{lstlisting}
 
-Nachdem die virtuelle Machine gestartet worden ist, können wir mit ssh einsteigen\reflst{vagrant-ssh}.
-\begin{lstlisting}[caption=Mit ssh in der Vagrant Maschine einsteigen, label=vagrant-ssh]
+Nachdem die virtuelle Machine gestartet worden ist, können wir mit ssh einsteigen\reflst{vagrant-ssh}. Unter Windows ist dieser Befehl derzeit nicht verfügbar und man muss deshalb mit Tools wie \cite{putty} darauf zugreifen.
+\begin{lstlisting}[language=sh,caption=Mit ssh in der Vagrant Maschine einsteigen, label=vagrant-ssh]
 vagrant ssh
 \end{lstlisting}
  
 Jetzt aktivieren wir die Puppetkonfiguration für unseren Vagrantbox. Vagrant liegt im Verzeichnis wo vagrant init durchgeführt haben, eine Datei Vagrantfile.
 Öffne die Datei und lösche die Kommentarzeichen für die Sektion \lstinline$config.vm.provision :puppet$. Weiter tragen wir unter \lstinline$puppet.manifests_path$ und \lstinline$puppet.module_path$ ein wo Manifeste und Module liegen. Als \lstinline$puppet.manifest_file$ tragen wir \lstinline$user.pp$ ein. Zum testen von der Apacheinstallation wird mit \lstinline$config.vm.forward_port 80, 160$ Port 80 des Guests über Port 160 vom Host erreicht.
   
-\begin{lstlisting}[caption=Puppet Provisioning in Vagrantfile konfigurieren, label=vagrantprovisioning]
-  # Forward a port from the guest to the host, which allows for outside
-  # computers to access the VM, whereas host only networking does not.
+\begin{lstlisting}[language=vagrant,caption=Puppet Provisioning in Vagrantfile konfigurieren, label=vagrantprovisioning]
   config.vm.forward_port 80, 160  
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "~/git/puppet-demo/puppet/manifests"
@@ -270,7 +186,7 @@ Jetzt aktivieren wir die Puppetkonfiguration für unseren Vagrantbox. Vagrant li
 
 Bei dieser Änderung müssen wir den Box neu laden\reflst{vagrant-reload}. Der Puppet Manifest user.pp wir jetzt ausgeführt. Mit \lstinline$puppet ssh$ steigen wir und verifizieren dass der User 'puppetdemo' mit Home-Verzeichis /home/puppetdemo vorhanden ist
 
-\begin{lstlisting}[caption=Vagrant Box neu laden, label=vagrant-reload]
+\begin{lstlisting}[language=sh,caption=Vagrant Box neu laden, label=vagrant-reload]
 vagrant reload
 notice: /Stage[main]//Node[default]/User[puppetdemo]/ensure: created
 notice: /Stage[main]//Node[default]/File[/home/puppetdemo]/ensure: created
@@ -287,7 +203,7 @@ puppetdemo@precise32:~$ pwd
 Mit \lstinline$vagrant provisioning$ kann der Puppet Manifest erneut ausgeführt werden. Ohne Änderungen im Manifest oder die virtuell Machine passiert nichts. Würde der Benutzer \lstinline$puppetdemo$ zum Beispiel entfernt, wird er wieder angelegt.
 Will man der Puppet Manifest in der virtuellen Machine ausführen, ist der \lstinline$puppet.manifests_path$ als \lstinline$/tmp/vagrant-puppet/manifest$ gemounted\reflst{vagrant-apply}.
 
-\begin{lstlisting}[caption=Puppet apply im Box, label=vagrant-apply]
+\begin{lstlisting}[language=sh,caption=Puppet apply im Box, label=vagrant-apply]
 $ sudo puppet apply /tmp/vagrant-puppet/manifests/user.pp
 No LSB modules are available.
 notice: Finished catalog run in 0.04 seconds
@@ -314,14 +230,17 @@ Nachdem wir die Grundlagen von Puppet und Vagrant jetz gelernt haben, wird jetzt
 \end{figure}
 
 
-Auf die gleiche Ebene wie der manifest-Verzeichnis legen wir \lstinline$modules$ an. Darunter \lstinline$apache/manifests/init.pp$\reflst{apache-module}.
+Auf die gleiche Ebene wie ders manifest-Verzeichnis legen wir \lstinline$modules$ an. Darunter \lstinline$apache/manifests/init.pp$\reflst{apache-module}.
 \begin{lstlisting}[caption=Verzeichnisstruktur für den apache-Module, label=apache-module]
-
+manifests/
+modules/
+  apache/
+    manifests/
+      init.pp
 \end{lstlisting}
 
 \lstinline$modules/apache/manifests/init.pp$ ist recht kompakt und zeigt auf einen Blick eine große Vorteil mit Puppet. Die Ressourcen \lstinline$package$ und \lstinline$service$ verstecken die Komplexität und platformspezifische Vorgen für Installation von Pakete und Starten von Dienste\reflst{apache-init.pp}.
-\begin{lstlisting}[caption=modules/apache/manifests/init.pp, label=apache-init.pp]
-$ cat modules/apache/manifests/init.pp 
+\begin{lstlisting}[language=puppet,caption=Inhalt von modules/apache/manifests/init.pp, label=apache-init.pp]
 class apache {
         package {
                 'apache2' :
@@ -336,14 +255,13 @@ class apache {
 \end{lstlisting}
 
 Um der Module in einem Manifest zu verwenden reicht lediglich \lstinline$include apache$\reflst{setupapache.pp}.
-\begin{lstlisting}[caption=manifests/setupapache.pp, label=setupapache.pp]
-$ cat manifests/setupapache.pp 
+\begin{lstlisting}[language=puppet,caption=Inhalt von manifests/setupapache.pp, label=setupapache.pp]
 include apache
 \end{lstlisting}
 
 In Vagrantfile ändern wir jetzt die Zeile \lstinline$puppet.manifest_file  = "user.pp"$ auf \lstinline$puppet.manifest_file  = "setupapache.pp"$ und geben \lstinline$vagrant provision$ ein\reflst{provisioning_apache}.
 
-\begin{lstlisting}[caption=vagrant provisioning für Apache, label=provisioning_apache]
+\begin{lstlisting}[language=sh,caption=vagrant provisioning für Apache, label=provisioning_apache]
 $ vagrant provision
 [default] Running provisioner: Vagrant::Provisioners::Puppet...
 [default] Running Puppet with /tmp/vagrant-puppet/manifests/setupapache.pp...
