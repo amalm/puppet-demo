@@ -173,10 +173,10 @@ vagrant ssh
 \end{lstlisting}
  
 Jetzt aktivieren wir die Puppetkonfiguration für unseren Vagrantbox. Vagrant liegt im Verzeichnis wo vagrant init durchgeführt haben, eine Datei Vagrantfile.
-Öffne die Datei und lösche die Kommentarzeichen für die Sektion \lstinline$config.vm.provision :puppet$. Weiter tragen wir unter \lstinline$puppet.manifests_path$ und \lstinline$puppet.module_path$ ein wo Manifeste und Module liegen. Als \lstinline$puppet.manifest_file$ tragen wir \lstinline$user.pp$ ein. Zum testen von der Apacheinstallation wird mit \lstinline$config.vm.forward_port 80, 160$ Port 80 des Guests über Port 160 vom Host erreicht.
+Öffne die Datei und lösche die Kommentarzeichen für die Sektion \lstinline$config.vm.provision :puppet$. Weiter tragen wir unter \lstinline$puppet.manifests_path$ und \lstinline$puppet.module_path$ ein wo Manifeste und Module liegen. Als \lstinline$puppet.manifest_file$ tragen wir \lstinline$user.pp$ ein. Zum testen von der Apacheinstallation wird mit \lstinline$config.vm.forward_port 80, 8080$ Port 80 des Guests über Port 8080 vom Host erreicht. Statt 8080 kann auch ein beliebig anderer Port gewählt werden, falls dieser schon belegt ist, jedoch sollte die Portnummer größer 1024 sein, da sonst Root-Rechte notwendig wären.
   
 \begin{lstlisting}[language=vagrant,caption=Puppet Provisioning in Vagrantfile konfigurieren, label=vagrantprovisioning]
-  config.vm.forward_port 80, 160  
+  config.vm.forward_port 80, 8080  
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "~/git/puppet-demo/puppet/manifests"
     puppet.module_path = "~/git/puppet-demo/puppet/modules"
@@ -220,23 +220,29 @@ notice: Finished catalog run in 0.39 seconds
 Der Vagrant-Box wird mit \lstinline$vagrant suspend$ angehalten, \lstinline$vagrant resume$ startet ihn wieder. Will man ganz von vorne anfagnen, entfernt \lstinline$vagrant destroy$ den Box. Die Datei Vagrantfile wird erhalten, damit kann man mit \lstinline$vagrant up$ den Box inklusive Provisioning mit Puppet wieder aufsetzen.
 
 \section{Apache Webserver und Applikation mit HTML und JavaScript mit Puppet installieren}
-Nachdem wir die Grundlagen von Puppet und Vagrant jetz gelernt haben, wird jetzt eine Apache Webserver installiert. Da es wahrscheinlich ist, dass Apache für andere Applikationen auch genutzt wird, wird der Puppet Code dafür in einem Module abgelegt. Module sind wiederverwendbare Einheiten vom Code und Data. Die Struktur eines Modules ist auf \url{http://docs.puppetlabs.com/learning/modules1.html} beschrieben\reffig{module_structure}. Siehe auch Puppet Module Cheat Sheet \url{docs.puppetlabs.com/module_cheat_sheet.pdf}.
-\begin{figure}
-  \begin{center}
-    \includegraphics[width=0.7\textwidth]{images/module_structure.pdf}
-  \end{center}
-  \caption{Puppet Module Struktur}
-  \label{module_structure}
-\end{figure}
+Nachdem wir die Grundlagen von Puppet und Vagrant jetz gelernt haben, wird jetzt eine Apache Webserver installiert. Da es wahrscheinlich ist, dass Apache für andere Applikationen auch genutzt wird, wird der Puppet Code dafür in einem Module abgelegt. Module sind wiederverwendbare Einheiten vom Code und Data. Die Struktur eines Modules ist auf \url{http://docs.puppetlabs.com/learning/modules1.html} beschrieben\reflst{module_structure}. Siehe auch Puppet Module Cheat Sheet \url{docs.puppetlabs.com/module_cheat_sheet.pdf}.
+
+\begin{lstlisting}[language=tree,caption=Puppet Module Struktur, label=module_structure]
+my_module
+|-- files
+|   `-- my_file.txt
+|-- manifests
+|   `-- init.pp
+`-- templates
+    `-- my_template.erb
+\end{lstlisting}
 
 
-Auf die gleiche Ebene wie ders manifest-Verzeichnis legen wir \lstinline$modules$ an. Darunter \lstinline$apache/manifests/init.pp$\reflst{apache-module}.
-\begin{lstlisting}[caption=Verzeichnisstruktur für den apache-Module, label=apache-module]
-manifests/
-modules/
-  apache/
-    manifests/
-      init.pp
+Auf die gleiche Ebene wie das manifests-Verzeichnis legen wir \lstinline$modules$ an. Darunter \lstinline$apache/manifests/init.pp$\reflst{apache-module}.
+%use to generate this tree --noreport -n puppet
+\begin{lstlisting}[language=tree,caption=Verzeichnisstruktur für den apache-Module, label=apache-module]
+puppet
+|-- manifests
+|   `-- user.pp
+`-- modules
+    `-- apache
+        `-- manifests
+            `-- init.pp
 \end{lstlisting}
 
 \lstinline$modules/apache/manifests/init.pp$ ist recht kompakt und zeigt auf einen Blick eine große Vorteil mit Puppet. Die Ressourcen \lstinline$package$ und \lstinline$service$ verstecken die Komplexität und platformspezifische Vorgen für Installation von Pakete und Starten von Dienste\reflst{apache-init.pp}.
@@ -268,6 +274,14 @@ $ vagrant provision
 notice: /Stage[main]/Apache/Package[apache2]/ensure: ensure changed 'purged' to 'present'
 notice: Finished catalog run in 97.25 seconds
 \end{lstlisting}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.4\textwidth]{images/apache.png}
+  \end{center}
+  \caption{Zugriff auf den Webserver der Vagrant-Maschine}
+  \label{puppet-user}
+\end{figure}
 
 \section*{Autoren}
 
