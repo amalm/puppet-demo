@@ -5,6 +5,7 @@
 
 
 \lstdefinelanguage{puppet}{
+basicstyle=\ttfamily\scriptsize,
 keywords={class,package,user,service,present,running,Package,class,include},
 %otherkeywords={=>},
 morestring=[b]",
@@ -15,6 +16,7 @@ keywordstyle=\color{cyan},
 }
 \lstdefinelanguage{sh}
 {
+basicstyle=\ttfamily\scriptsize,
 morekeywords={vagrant,su,sudo,puppet,cat,export},deletekeywords={vagrant-puppet}
 morestring=[b]",
 morestring={[s]{/tmp}{pp}},
@@ -22,6 +24,7 @@ keywordstyle=\color{cyan},
 }
 \lstdefinelanguage{vagrant}
 {
+basicstyle=\ttfamily\scriptsize,
 morestring=[b]",
 morekeywords={end,do,config.vm.forward_port},
 otherkeywords={config.vm.forward_port,config.vm.provision,puppet.manifests_path,puppet.module_path,puppet.manifest_file},
@@ -31,9 +34,17 @@ stringstyle=\color{black},
 morecomment=[l][\color{black}]{\#}
 }
 
+\lstdefinelanguage{tree}
+{
+morekeywords={puppet,manifests,modules,apache,files,templates,my_module},
+deletekeywords={apache.pp},
+keywordstyle=\color{cyan},
+identifierstyle=\color{darkblue},
+basicstyle=\ttfamily\scriptsize,
+columns=fixed,
+}
+
 \lstset{ %
-                % choose the language of the code
-basicstyle=\footnotesize,       % the size of the fonts that are used for the code
 numbers=left,                   % where to put the line-numbers
 numberstyle=\scriptsize,      % the size of the fonts that are used for the line-numbers
 stepnumber=1,                   % the step between two line-numbers. If it's 1 each line will be numbered
