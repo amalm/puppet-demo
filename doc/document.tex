@@ -61,8 +61,17 @@ Um diese Ziele zu erreichen sind einige Veränderungen notwendig. In diesem Arti
 
 Puppet benutzt eine Domain-Specific-Language(DSL) um den Zustand eines System zu beschreiben. Der Code wird organisiert in Manifeste und Module.
 
+\begin{wrapfigure}{r}{8cm}
+\vspace{-20pt}
+\begin{boxedminipage}{8cm}
+Für die Entwicklung von Puppet Module und Manifeste bietet sich \cite{geppeto} an. Geppeto bringt Code Completion und Syntax Highlighting mit und kommt als Standaloneapplikation oder als Plugin für eine bestehende Eclipseinstallation. 
+\end{boxedminipage}
+\vspace{-20pt}
+\end{wrapfigure}
+
 Ein Manifest ist ein Puppet "Program". Module sind für die Puppet-EntwicklerIn ähnlich wie Libraries für eine Java-EntwicklerIn. Ein Großteil der Manifeste und Module mach die Definition von Ressourcen aus, eine Ressource ist ein atomarer Typ eines Systems, es entspricht einer physisches Identität eines Computersystems. Ein Beispiel für eine solche Ressource, wäre ein Benutzer oder eine Datei. In \reflst{puppet-add-user} wird der Ressource user \lstinline$puppetdemo$ und dazugehörige Ressource file \lstinline$/home/puppetdemo$ definiert. Der Aufruf \lstinline$sudo puppet apply manifest/user.pp$ führt es aus und muss mit 'sudo' aufgerufen werden damit Verzeichnis und Benutzer angelegt werden können.
 Mit \lstinline$puppet resource user puppetdemo$ wird die Informationen zum neu angelegten Benutzer ausgegeben.\reflst{puppet-add-user-info}
+
 
 \begin{lstlisting}[language=sh,caption=User mit Puppet anlegen, label=puppet-add-user]
 $ cat manifest/user.pp 
@@ -107,9 +116,6 @@ Eine Aufzählung der vom Puppet unterstützen Ressourcen wird mit \lstinline$pup
 %  \caption{User mit Puppet anlegen}
 %  \label{puppet-user}
 %\end{figure}
-
-
-Für die Entwicklung von Puppet Module und Manifeste bietet sich \cite{geppeto} an. Geppeto bringt Code Completion und Syntax Highlighting mit und kommt als Standaloneapplikation oder als Plugin für eine bestehende Eclipseinstallation. 
 
 
 %Der Manifest user.pp legen wir in einem Verzeichnis manifests ab\reffig{puppet-manifestdir}.
@@ -173,10 +179,10 @@ vagrant ssh
 \end{lstlisting}
  
 Jetzt aktivieren wir die Puppetkonfiguration für unseren Vagrantbox. Vagrant liegt im Verzeichnis wo vagrant init durchgeführt haben, eine Datei Vagrantfile.
-Öffne die Datei und lösche die Kommentarzeichen für die Sektion \lstinline$config.vm.provision :puppet$. Weiter tragen wir unter \lstinline$puppet.manifests_path$ und \lstinline$puppet.module_path$ ein wo Manifeste und Module liegen. Als \lstinline$puppet.manifest_file$ tragen wir \lstinline$user.pp$ ein. Zum testen von der Apacheinstallation wird mit \lstinline$config.vm.forward_port 80, 160$ Port 80 des Guests über Port 160 vom Host erreicht.
+Öffne die Datei und lösche die Kommentarzeichen für die Sektion \lstinline$config.vm.provision :puppet$. Weiter tragen wir unter \lstinline$puppet.manifests_path$ und \lstinline$puppet.module_path$ ein wo Manifeste und Module liegen. Als \lstinline$puppet.manifest_file$ tragen wir \lstinline$user.pp$ ein. Zum testen von der Apacheinstallation wird Port 6400 im Host auf Port 80 im Guest weitergeleitet:\lstinline$config.vm.forward_port 80, 6400$.
   
 \begin{lstlisting}[language=vagrant,caption=Puppet Provisioning in Vagrantfile konfigurieren, label=vagrantprovisioning]
-  config.vm.forward_port 80, 160  
+  config.vm.forward_port 80, 6400  
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "~/git/puppet-demo/puppet/manifests"
     puppet.module_path = "~/git/puppet-demo/puppet/modules"
@@ -184,7 +190,7 @@ Jetzt aktivieren wir die Puppetkonfiguration für unseren Vagrantbox. Vagrant li
   end
 \end{lstlisting} 
 
-Bei dieser Änderung müssen wir den Box neu laden\reflst{vagrant-reload}. Der Puppet Manifest user.pp wir jetzt ausgeführt. Mit \lstinline$puppet ssh$ steigen wir und verifizieren dass der User 'puppetdemo' mit Home-Verzeichis /home/puppetdemo vorhanden ist
+Bei dieser Änderung müssen wir den Box neu laden\reflst{vagrant-reload}. Der Puppet Manifest user.pp wir jetzt ausgeführt. Mit \lstinline$puppet ssh$ steigen wir und verifizieren dass der User 'puppetdemo' mit Home-Verzeichnis /home/puppetdemo vorhanden ist
 
 \begin{lstlisting}[language=sh,caption=Vagrant Box neu laden, label=vagrant-reload]
 vagrant reload
@@ -219,7 +225,7 @@ notice: Finished catalog run in 0.39 seconds
 
 Der Vagrant-Box wird mit \lstinline$vagrant suspend$ angehalten, \lstinline$vagrant resume$ startet ihn wieder. Will man ganz von vorne anfagnen, entfernt \lstinline$vagrant destroy$ den Box. Die Datei Vagrantfile wird erhalten, damit kann man mit \lstinline$vagrant up$ den Box inklusive Provisioning mit Puppet wieder aufsetzen.
 
-\section{Apache Webserver und Applikation mit HTML und JavaScript mit Puppet installieren}
+\section{Apache Webserver und eine Applikation mit HTML und JavaScript mit Puppet installieren}
 Nachdem wir die Grundlagen von Puppet und Vagrant jetz gelernt haben, wird jetzt eine Apache Webserver installiert. Da es wahrscheinlich ist, dass Apache für andere Applikationen auch genutzt wird, wird der Puppet Code dafür in einem Module abgelegt. Module sind wiederverwendbare Einheiten vom Code und Data. Die Struktur eines Modules ist auf \url{http://docs.puppetlabs.com/learning/modules1.html} beschrieben\reffig{module_structure}. Siehe auch Puppet Module Cheat Sheet \url{docs.puppetlabs.com/module_cheat_sheet.pdf}.
 \begin{figure}
   \begin{center}
@@ -268,6 +274,80 @@ $ vagrant provision
 notice: /Stage[main]/Apache/Package[apache2]/ensure: ensure changed 'purged' to 'present'
 notice: Finished catalog run in 97.25 seconds
 \end{lstlisting}
+
+Über den weitergeleiteten Port 6400 können wir feststellen, dass Apache läuft\reffig{apache}.
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.4\textwidth]{images/apache.pdf}
+  \end{center}
+  \caption{Apache aufrufen}
+  \label{apache}
+\end{figure}
+
+Als nächstes lassen wir Puppet die Dateien für die Applikation in den Verzeichnis für \lstinline$DocumentRoot/var/www/$ kopieren. Folgender Eintrag in Vagrantfile stellt der Host-Verzeichnis \lstinline$~/git/puppet-demo/puppet-demoapp/src/main/webapp$ als Guest-Verzeichnis \lstinline$/demoapp$ zur Verfügung\reflst{vagrantsharedfolder}.
+\begin{lstlisting}[language=vagrant,caption=Shared folders in Vagrantfile konfigurieren, label=vagrantsharedfolder]
+config.vm.share_folder "demoapp", "/demoapp", "~/git/puppet-demo/puppet-demoapp/src/main/webapp"
+\end{lstlisting}
+
+Puppet Manifest \lstinline$manifests/demoapp.pp$für die Installation der Applikation\reflst{puppetdemoapp}.
+\begin{lstlisting}[language=puppet,caption=Puppet Manifest für die Applikation, label=puppetdemoapp]
+include apache
+
+ file {
+        '/var/www/demoapp' :
+                ensure => directory,
+                source => '/demoapp',
+                require => Package['apache2'],
+                recurse => true,
+}
+\end{lstlisting}
+
+Bei Änderungen in der Vagrantfile muss der Vagrant Box neu geladen werden:\lstinline$vagrant reload$\reflst{reloaddemoapp}.
+\begin{lstlisting}[language=sh,caption=Puppet reload mit Provisioning der Applikation, label=reloaddemoapp]
+$ vagrant reload
+[default] Attempting graceful shutdown of VM...
+[default] Clearing any previously set forwarded ports...
+[default] Forwarding ports...
+[default] -- 22 => 2222 (adapter 1)
+[default] -- 80 => 6400 (adapter 1)
+[default] Creating shared folders metadata...
+[default] Clearing any previously set network interfaces...
+[default] Booting VM...
+[default] Waiting for VM to boot. This can take a few minutes.
+[default] VM booted and ready for use!
+[default] Mounting shared folders...
+[default] -- demoapp: /demoapp
+[default] -- v-root: /vagrant
+[default] -- v-pp-m0: /tmp/vagrant-puppet/modules-0
+[default] -- manifests: /tmp/vagrant-puppet/manifests
+[default] Running provisioner: Vagrant::Provisioners::Puppet...
+[default] Running Puppet with /tmp/vagrant-puppet/manifests/demoapp.pp...
+notice: /Stage[main]//File[/var/www/demoapp]/ensure: created
+...
+notice: /File[/var/www/demoapp/index.html]/ensure: defined content as '{md5}90a8d419b9c7b43b09ba73abebaf8f4c'
+...
+notice: Finished catalog run in 1.34 seconds
+\end{lstlisting}
+
+Jetzt kann die Applikation aufgerufen werden\reffig{demoapp}.
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.4\textwidth]{images/demoapp.pdf}
+  \end{center}
+  \caption{Die Applikation im Browser}
+  \label{demoapp}
+\end{figure}
+
+Eine Änderung in zum Beispiel \lstinline$index.html$ wird von Puppet bei \lstinline$vagrant provision$ erkannt\reflst{provisionapp}.
+\begin{lstlisting}[language=sh,caption=Puppet Provisioning nach Änderung von index.html, label=provisionapp]
+$ vagrant provision[default] Running provisioner: Vagrant::Provisioners::Puppet...
+[default] Running Puppet with /tmp/vagrant-puppet/manifests/demoapp.pp...
+
+notice: /File[/var/www/demoapp/index.html]/content: content changed '{md5}90a8d419b9c7b43b09ba73abebaf8f4c' to '{md5}0a4ee5bb63c3e5c29cc54cf36a4be23c'
+
+notice: Finished catalog run in 0.71 seconds
+\end{lstlisting}
+
 
 \section*{Autoren}
 
