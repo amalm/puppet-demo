@@ -76,7 +76,6 @@ Mit \lstinline$puppet resource user puppetdemo$ wird die Informationen zum neu a
 \begin{lstlisting}[language=sh,caption=User mit Puppet anlegen, label=puppet-add-user]
 $ cat manifest/user.pp 
 node default {
-
     user {
         'puppetdemo' :
             ensure => present,
@@ -352,6 +351,38 @@ notice: /File[/var/www/demoapp/index.html]/content: content changed '{md5}90a8d4
 
 notice: Finished catalog run in 0.71 seconds
 \end{lstlisting}
+
+\section{Puppet am Server}
+
+Nachdem dem erfolgreichen erstellen erster Manifeste, geht es nun darum wie man die Manifeste auf einem Server verlagert und eine ganze Serverfarm damit betreibt. Grundsätzlich unterscheiden wir bei Puppet zwischen zwei Typen Puppet Master und Puppet Agent. Der Puppet Agent ist auf einem x-belieben Server installiert und kontaktiert eine zentrale Einheit, den Puppet Master, um von ihn gesteuert zu werden. 
+
+\subsection{Puppet Server-Agent-Workflow}
+
+Der Puppet Server-Agent-Workflow funktioniert grundsätzlich nach dem Pull Prinzip, d.h. der Puppet Agent fragt aktiv beim Puppet Master nach was zu tun ist, er fordert einem \textit{Catalog} in dem er dem Master seinem Namen und seine Statusinformationen über sich selbst, sogennannte \textit{facts} mitteilt. Ein \textit{fact} wäre zum Beispiel das Betriebssystem auf dem der Agent läuft. Der Puppet Master idenitifiziert und sucht nach Arbeitsanweisungen für den Agent. Der Master compiliert aus allen anwendbaren Manifesten einen \textit{Catalog} und sendet ihn zurück an den Agent. Dieser wendet den \textit{Catalog} an d.h. es wird versucht den durch den \textit{Catalog} definierte Zustand herzustellen. Das Herstellen dieses Zustandes wird protokolliert und dann an den Puppet Master gesendet. Dieser Report kann zu einem späteren Zeitpunkt ausgewertet werden.
+
+%TODO: make picture
+
+\subsection{Arbeitsanweisungen für den Agent suchen}
+
+Wenn der Puppet Master vom Puppet Agent kontaktiert wird, wird er mithilfe seines Hostnamen identifiziert und der Puppet Master liest das Manifest \lstinline$/etc/puppet/manifests/site.pp$ ein und sucht nach einer passenden \lstinline$node$ Definition. Wenn der Master nun vom server1.example.org kontaktiert wird wird dieser die Ausgabe \lstinline$hello server1!$ erzeugen, analog für server2. Statt alle Server einzeln zu definieren kann man auch das Schlüsselword default verwenden damit werden die beinhaltende Anweisungen auf allen Servern die den Master kontaktieren ausgeführt werden. 
+
+\begin{lstlisting}[language=puppet,caption=Node Definitionen in /etc/puppet/manifests/site.pp, label=puppet-node-classifier]
+node server1.example.org {
+    notice("hello server1!)
+}
+
+node server2.example.org {
+    notice("hello server2!)
+}
+
+node default {
+    notice("hello server")
+}
+
+\end{lstlisting}  
+
+\subsection{Alternative: External Node Classifier}
+     
 
 
 \section*{Autoren}
