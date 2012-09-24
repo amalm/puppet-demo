@@ -372,6 +372,7 @@ node server1.example.org {
 }
 
 node server2.example.org {
+    include apache
     notice("hello server2!)
 }
 
@@ -383,6 +384,24 @@ node default {
 
 \subsection{Alternative: External Node Classifier}
      
+\begin{lstlisting}[caption=External Node Classifier Konfiguration des Puppet Master, label=puppet-enc-config]
+[master]
+  node_terminus = exec
+  external_nodes = /usr/local/bin/my_node_classifier
+\end{lstlisting} 
+
+Alternativ du obigen deklarativen Ansatz kann Puppet zusätzlich auch einen External Node Classifier verwenden.  Ein External Node Classifier ist ein Script dem als Argument der Puppet Agent Name übergeben wird und der eine \lstinline$YAML$ Datei ausgibt. Die YAML Datei enthält eine Liste von Klassen und Parametern welche dem Knoten zugewiesen werden.  
+
+Um vorigen Beispiel hat die Knotendeklaration\reflst{puppet-node-classifier} für den server2 das \lstinline$apache$ Modul enthalten, analog dazu müsste der ENC folgendes YAML Dokument zurückliefern:  
+
+\begin{lstlisting}[caption=YAML, label=puppet-enc-yaml]
+name: server2.example.org
+---
+classes: 
+   apache:
+\end{lstlisting} 
+
+Interessant wird das ganze erst wenn der ENC mit einem Konfigurationswerkzeug gekoppelt wird, in dem dynamisch Konfigurationen erstellt werden können. Ein solches Werkzeug wäre das \cite{puppetdashboard}. Nachteil hierbei ist es das parametrisierte Klassen derzeit nicht verwaltet werden können. 
 
 
 \section*{Autoren}
