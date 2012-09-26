@@ -28,7 +28,9 @@ Iteratives Vorgehen bei der Entwicklung von Applikationen ist mittlerweile sehr 
 
 Jede Applikation beinhaltet außerdem Konfigurationen, im banalsten Fall sind das Einstellungen für den Zugriff auf eine Datenbank, im komplexere Fälle Schalter welche Teilfunktionalitäten aktivieren. Je nach den Konfigurationsmöglichkeiten können mehrere Installationen notwendig sein um die Funktionsweise sicherzustellen.
 
-Für die Übersetzung, UnitTests und Paketiereung der Applikation helfen Continous Integration Systeme wie \cite{jenkins}. Aber wie automatisert man das nächste Schritt - die automatische Installation und Konfiguration auf ein bis mehrere Servers? Für diese Problemstellung haben wir uns nach einer Lösung umgesehen und mit Puppet einen gangbaren Weg gefunden.
+Für die Übersetzung, UnitTests und Paketiereung der Applikation helfen Continous Integration Systeme wie \cite{jenkins}. Aber wie automatisert man der nächste Schritt - die automatische Installation und Konfiguration auf ein bis mehrere Servers? 
+
+Für diese Problemstellung haben wir uns nach einer Lösung umgesehen und mit Puppet einen gangbaren Weg gefunden.
 
 \cite{puppet} und \cite{chef} sind so gennante Configuration Management(CM) Lösungen. Zusammengefasst bietet ein CM-Lösung die Möglichkeit den erwarteten Zustand eines Systems (hier Server) zu beschrieben und bei Abweichungen Mechanismen um das System in dem erwarteten Zustand zu versetzt.
 
@@ -36,10 +38,11 @@ Folgende Probleme wollten wir adressieren und dafür Lösungen finden:
 \begin{itemize}
 \item Automatische Installation und Konfiguration nach erfolgreichen Build im Jenkins.
 \begin{itemize}
-\item trotz Paketierung in Web Archieves (WARs) war bisher einige wenige Konfigurationen wie Datenbank-Parametern in Property-Dateien händisch einzutragen.
+\item trotz Paketierung in Web Archieves (WARs) war bisher einige Konfigurationen wie Datenbank-Parametern manuell einzutragen.
 \end{itemize}
 \item Zentrale Definition welche Applikationen mit welcher Konfiguration wo (auf welche Servers) zu laufen haben.
 \item Neue virtuellen Servers sollten einfach von einen Basis-Image aufegsetzt werden und mit Puppet fertigkonfiguriert werden inklusive beispielsweise Apache und Tomcat.
+\item Gleiche Mechanismen und Vorgehen bei der Test-/QA- und Produktionsumgebung.
 \end{itemize}
 
 Eine prekäre Situation, eine mehrere Teams entwickeln, unabhängig voneinander mit agilen Methoden, eine Vielzahl von modularen Frameworks und Applikationen. Mithilfe von \cite{jenkins} wird stündlich kompiliert und integriert um sicherzustellen dass das alles auch zusammenpasst. 
