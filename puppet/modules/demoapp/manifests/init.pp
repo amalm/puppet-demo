@@ -1,6 +1,6 @@
-class demoapp {
+class demoapp($demoappname='demoapp') {
     file {
-        '/var/www/demoapp' :
+        "/var/www/$demoappname" :
         ensure => directory,
         source => '/home/vagrant/demoapp',
         require => Package['apache2'],

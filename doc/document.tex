@@ -283,17 +283,24 @@ Als nächstes lassen wir Puppet die Dateien für die Applikation in das Verzeich
 config.vm.share_folder "demoapp", "/demoapp", "~/git/puppet-demo/puppet-demoapp/src/main/webapp"
 \end{lstlisting}
 
-Mit dem Manifest \lstinline$manifests/demoapp.pp$ für die Installation der Applikation\reflst{puppetdemoapp}, definieren wir das Puppet die Dateien vom zuvor spezifizierten Verzeichnis \lstinline$/demoapp$ nach \lstinline$/var/www/$ kopieren sollen.
+Mit dem Manifest \lstinline$manifests/demoapp.pp$ für die Installation der Applikation\reflst{puppetdemoapp}, definieren wir das Puppet die Dateien vom zuvor spezifizierten Verzeichnis \lstinline$/demoapp$ nach \lstinline$/var/www/$ kopieren sollen, das ganze ist im Module demoapp gekapselt\reffig{puppet-demo-module}.
 \begin{lstlisting}[language=puppet,caption=Puppet Manifest für die Applikation, label=puppetdemoapp]
 include apache
+include demoapp
+\end{lstlisting}
 
-file { '/var/www/demoapp' :
-  ensure => directory,
-  source  => '/demoapp',
-  require => Package['apache2'],
-  recurse => true,
+\begin{lstlisting}[language=puppet,caption=Puppet Module demoapp,label=puppet-demo-module]
+class demoapp($demoappname='demoapp') {
+    file {
+        "/var/www/$demoappname" :
+        ensure => directory,
+        source => '/home/vagrant/demoapp',
+        require => Package['apache2'],
+        recurse => true,
+    }
 }
 \end{lstlisting}
+
 
 Durch die Änderung der geteilten Verzeichnisse im Vagrantfile ist es notwendig die Vagrant Box neu zu starten um die Änderung aktiv werden zu lassen:\lstinline$vagrant reload$\reflst{reloaddemoapp}.
 \begin{lstlisting}[language=sh,caption=Puppet reload mit Provisioning der Applikation, label=reloaddemoapp]
@@ -384,15 +391,24 @@ Alternativ du obigen deklarativen Ansatz kann Puppet zusätzlich auch einen Exte
 
 Um vorigen Beispiel hat die Knotendeklaration\reflst{puppet-node-classifier} für den server2 das \lstinline$apache$ Modul enthalten, analog dazu müsste der ENC folgendes YAML Dokument zurückliefern:  
 
-\begin{lstlisting}[caption=YAML, label=puppet-enc-yaml]
+\begin{lstlisting}[caption=ENC's YAML, label=puppet-enc-yaml]
 name: server2.example.org
 ---
 classes: 
-   apache:
+    apache:
+    demoapp: 
 \end{lstlisting} 
 
-Interessant wird das ganze erst wenn der ENC mit einem Konfigurationswerkzeug gekoppelt wird, in dem dynamisch Konfigurationen erstellt werden können. Ein solches Werkzeug wäre das \cite{puppetdashboard}. Nachteil hierbei ist es das parametrisierte Klassen derzeit nicht verwaltet werden können. 
+Interessant wird das ganze erst wenn der ENC mit einem Konfigurationswerkzeug gekoppelt wird, in dem dynamisch Konfigurationen erstellt werden können. Ein solches Werkzeug wäre das \cite{puppetdashboard}. Nachteil hierbei ist es das parametrisierte Klassen derzeit nicht verwaltet werden können. In unserem obigen Beispiel können wir zum Beispiel die Demoapplikation unter einer anderen Location auch verfügbar machen in dem wir den Klassenparameter demoappname überschreiben\reffig{puppet-enc-yaml-param}
 
+\begin{lstlisting}[caption=ENC's YAML mit Klassenparameter , label=puppet-enc-yaml-param]
+name: server2.example.org
+---
+classes: 
+    apache:
+    demoapp: 
+        demoappname: mydemoapp
+\end{lstlisting} 
 
 \section*{Autoren}
 
