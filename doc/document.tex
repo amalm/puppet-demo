@@ -131,7 +131,7 @@ Eine Liste mit vorgefertigten Vagrant Boxen gibt es übrigens auf \url{http://ww
 \vspace{-15pt}
 \end{wrapfigure}
 
-Nachdem Vagrant und VirtualBox installiert worden sind, können wir eine Box zum Testen aufsetzen. In unserem Fall verwenden wir eine 64 Bit Version von Debian Squeeze. Diese wurde von uns für diesen Artikel neu erstellt und beinhaltet eine Minimalinstallation mit den für Vagrant üblichen Vorbereitungen: SSH Key Setup, VirtualBox Guest Additions, Puppet und Ruby. \url{http://vagrantup.com/v1/docs/base_boxes.html}
+Nachdem Vagrant und VirtualBox installiert worden sind, können wir eine Box zum Testen aufsetzen. In unserem Fall verwenden wir eine 64 Bit Version von Debian Squeeze. Diese beinhaltet eine Minimalinstallation mit den für Vagrant üblichen Vorbereitungen: SSH Key Setup, VirtualBox Guest Additions, Puppet und Ruby. \url{http://vagrantup.com/v1/docs/base_boxes.html}
 
 \begin{lstlisting}[language=sh,caption=Download der Vagrant Box, label=vagrant-add]
 vagrant box add debian_squeeze_64 http://dl.dropbox.com/u/937870/VMs/squeeze64.box
@@ -389,17 +389,9 @@ node default {
 
 Alternativ du obigen deklarativen Ansatz kann Puppet zusätzlich auch einen External Node Classifier verwenden.  Ein External Node Classifier ist ein Script dem als Argument der Puppet Agent Name übergeben wird und der eine \lstinline$YAML$ Datei ausgibt. Die YAML Datei enthält eine Liste von Klassen und Parametern welche dem Knoten zugewiesen werden.  
 
-Um vorigen Beispiel hat die Knotendeklaration\reflst{puppet-node-classifier} für den server2 das \lstinline$apache$ Modul enthalten, analog dazu müsste der ENC folgendes YAML Dokument zurückliefern:  
+Um vorigen Beispiel hat die Knotendeklaration\reflst{puppet-node-classifier} für den server2 das \lstinline$apache$ Modul enthalten, analog dazu müsste der ENC das YAML Dokument\reflst{puppet-enc-yaml-param}, ohne die letzte Zeile zurückliefern.  
 
-\begin{lstlisting}[caption=ENC's YAML, label=puppet-enc-yaml]
-name: server2.example.org
----
-classes: 
-    apache:
-    demoapp: 
-\end{lstlisting} 
-
-Interessant wird das ganze erst wenn der ENC mit einem Konfigurationswerkzeug gekoppelt wird, in dem dynamisch Konfigurationen erstellt werden können. Ein solches Werkzeug wäre das \cite{puppetdashboard}. Nachteil hierbei ist es das parametrisierte Klassen derzeit nicht verwaltet werden können. In unserem obigen Beispiel können wir zum Beispiel die Demoapplikation unter einer anderen Location auch verfügbar machen in dem wir den Klassenparameter demoappname überschreiben\reffig{puppet-enc-yaml-param}
+Interessant wird das ganze erst wenn der ENC mit einem Konfigurationswerkzeug gekoppelt wird, in dem dynamisch Konfigurationen erstellt werden können. Ein solches Werkzeug wäre das \cite{puppetdashboard}. Nachteil hierbei ist es das parametrisierte Klassen derzeit nicht verwaltet werden können. In unserem obigen Beispiel können wir zum Beispiel die Demoapplikation unter einer anderen Location auch verfügbar machen in dem wir den Klassenparameter demoappname überschreiben\reflst{puppet-enc-yaml-param}
 
 \begin{lstlisting}[caption=ENC's YAML mit Klassenparameter , label=puppet-enc-yaml-param]
 name: server2.example.org
@@ -409,6 +401,22 @@ classes:
     demoapp: 
         demoappname: mydemoapp
 \end{lstlisting} 
+
+\section{Resumeé}
+
+Wir wollten für uns mit Puppet und Vagrant Lösungen für folgende Probleme finden:
+\begin{itemize}
+\item Automatische Installation und Konfiguration nach erfolgreichen Build im Jenkins 
+\item Zentrale Definition, welche Applikationen mit welcher Konfiguration wo, auf welche Servern, zu laufen haben.
+\item Neue virtuelle Servers sollten einfach von einem Basis-Image aufgesetzt werden und mit Puppet fertig konfiguriert werden, inklusive beispielsweise Apache und Tomcat.
+\item Gleiche Mechanismen und Vorgehen bei der Test-/QA- und Produktionsumgebung.
+\end{itemize}
+
+Beim Jenkins Build wird nicht nur die Software compiliert sondern es erfolgt auch eine Paketierung.  Die Konfiguration kann aber nicht teil der Paketierung sein sondern muss zu einem späteren Zeitpunkt bestimmt werden. Weiters muss definiert, wenn möglich zentral, wo diese Applikationen mit welcher Konfiguration laufen. Puppet in Verknüpfung mit einem ENC bietet uns genau diese Funktionalität. Wir definieren im ENC, welche Server mit welcher Software von Puppet ausgestattet werden soll und über Parameter der dazugehörigen Puppet Module definieren wie diese Software konfiguriert wird. 
+
+Mithilfe von Puppet können wir auf Basis eines Standard-Image, wie in obigen bei Vagrant eingesetzt, einen Server fertig konfigurieren und auf unsere Bedürfnisse anpassen und das mit dem selben Mechanismus -- wiederholbar -- in jeder Umgebung, sei es QA in Produktion.
+
+
 
 \section*{Autoren}
 
@@ -421,7 +429,7 @@ classes:
 \includegraphics[width=0.3\textwidth]{images/anders.jpg}
 \vspace{-20pt}
 \end{wrapfigure}
-hat jahrezehntelange Erfahrung in Applikations und Produktentwicklung im C++ und JavaEE  und arbeitet als IT Freelancer im automotive Bereich. 
+hat jahrezehntelange Erfahrung in der Applikations- und Produktentwicklung im C++ und JavaEE Umfeld und arbeitet als IT Freelancer im automotive Bereich. 
 \end{minipage}
 \hspace{0.1\textwidth}
 \begin{minipage}[t][\authorboxheight]{0.45\textwidth}
