@@ -8,7 +8,7 @@
 
 \begin{document}
  \begin{titlepage}
-     \begin{flushright}{\huge Deliver with Puppet}
+     \begin{flushright}{\huge Continous Delivery with Puppet}
 	\end{flushright}
 	\hrule
       
@@ -28,11 +28,11 @@ Iteratives Vorgehen bei der Entwicklung von Applikationen ist mittlerweile sehr 
 
 Jede Applikation beinhaltet außerdem Konfigurationen, im banalsten Fall sind das Einstellungen für den Zugriff auf eine Datenbank, im komplexere Fälle Schalter welche Teilfunktionalitäten aktivieren. Je nach den Konfigurationsmöglichkeiten können mehrere Installationen notwendig sein um die korrekte Funktionsweise einer Applikation, in all ihren Variationen, sicherzustellen.
 
-Für die Source-Code-Übersetzung, Testausführung und Paketiereung der Applikation helfen Continous Integration Systeme wie \cite{jenkins}. Aber wie automatisert man den nächste Schritt - die automatische Installation und Konfiguration von einem bis mehrere Server? 
+Für die Source-Code-Übersetzung, Testausführung und Paketiereung der Applikation helfen Continous Integration Systeme wie \cite{jenkins}. Aber wie automatisiert man den nächste Schritt - die automatische Installation und Konfiguration von einem bis mehrere Server? 
 
 Für diese Problemstellung haben wir uns nach einer Lösung umgesehen und mit Puppet einen gangbaren Weg gefunden. 
 
-\cite{puppet} oder auch \cite{chef} sind so gennante Configuration Management(CM) Lösungen. Zusammengefasst bietet ein CM-Lösung die Möglichkeit den erwarteten Zustand eines Systems (hier Server) zu beschrieben und bei Abweichungen Mechanismen um das System in dem erwarteten Zustand zu versetzt.
+\cite{puppet} oder auch \cite{chef} sind so genannte Configuration Management(CM) Lösungen. Zusammengefasst bietet ein CM-Lösung die Möglichkeit den erwarteten Zustand eines Systems (hier Server) zu beschrieben und bei Abweichungen Mechanismen um das System in dem erwarteten Zustand zu versetzt.
 
 Folgende Probleme wollten wir adressieren und dafür Lösungen finden:
 \begin{itemize}
@@ -45,7 +45,7 @@ Folgende Probleme wollten wir adressieren und dafür Lösungen finden:
 \item Gleiche Mechanismen und Vorgehen bei der Test-/QA- und Produktionsumgebung.
 \end{itemize}
 
-In der Entwicklung heißt das in erster Linie Softwarecode der commited wird, der gebaut werden kann und die automatisierten Tests besteht soll auch deployed werden. Damit können wir gewährleisten bzw. überprüfen das die Software zu jedem Zeitpunkt einsatzbereit ist und nicht nur auf einem Entwicklungs-PC funktioniert.
+In der Entwicklung heißt das in erster Linie Softwarecode der commited wird, der gebaut werden kann und die automatisierten Tests besteht soll auch installiert werden. Damit können wir gewährleisten bzw. überprüfen das die Software zu jedem Zeitpunkt einsatzbereit ist und nicht nur auf einem Entwicklungs-PC funktioniert.
 
 \subsection{Puppet Einführung}
 
@@ -119,9 +119,9 @@ Eine Aufzählung der vom Puppet unterstützen Ressourcen wird mit \lstinline$pup
 
 
 \subsection{Testbox mit Vagrant}
-Für die Entwicklung und Tests von Puppet Modulen und Manifeste empfielt sich eine virtuelle Machine. Puppet Labs stellt sollche für VMware und VirtualBox zur Verfügung unter \url{http://info.puppetlabs.com/download-learning-puppet-VM.html}. 
+Für die Entwicklung und Tests von Puppet Modulen und Manifeste empfiehlt sich eine virtuelle Maschine. Puppet Labs stellt sollche für VMware und VirtualBox zur Verfügung unter \url{http://info.puppetlabs.com/download-learning-puppet-VM.html}. 
 
-Eine andere Möglichkeit ist \cite{vagrant}. Vagrant ist eine Konfigurationstool für die Verwaltung von Virtuellen Maschinen mit VirtualBox. Es kann in weiterer Folge auch Puppet, Chef oder Shell Scripts benutzen kann um die virtuelle Maschine zu konfigurieren. Analog zu Virtualbox kann Vagrant via Paketmanager für Linux installiert werden oder von den entsprechenden Downloadseiten runtergeladen werden.Wir verwenden für diesen Artikel Vagrant. 
+Eine andere Möglichkeit ist \cite{vagrant}. Vagrant ist eine Konfigurationstool für die Verwaltung von Virtuellen Maschinen mit VirtualBox. Es kann in weiterer Folge auch Puppet, Chef oder Shell Scripts benutzen kann um die virtuelle Maschine zu konfigurieren. Analog zu Virtualbox kann Vagrant via Paketmanager für Linux installiert werden oder von den entsprechenden Downloadseiten heruntergeladen werden.Wir verwenden für diesen Artikel Vagrant. 
 
 \begin{wrapfigure}{l}{5cm}
 \vspace{-15pt}
@@ -162,7 +162,7 @@ Diese initiale Konfiguration beinhaltet alles an was Vagrant zum Konfigurieren u
 vagrant up
 \end{lstlisting}
 
-Nachdem die virtuelle Machine gestartet worden ist, können wir mit ssh einsteigen\reflst{vagrant-ssh}. Unter Windows ist dieser Befehl derzeit nicht verfügbar und man muss deshalb mit Tools wie \cite{putty} darauf zugreifen.
+Nachdem die virtuelle Maschine gestartet worden ist, können wir mit ssh einsteigen\reflst{vagrant-ssh}. Unter Windows ist dieser Befehl derzeit nicht verfügbar und man muss deshalb mit Tools wie \cite{putty} darauf zugreifen.
 \begin{lstlisting}[language=sh,caption=Mit ssh in der Vagrant Maschine einsteigen, label=vagrant-ssh]
 vagrant ssh
 \end{lstlisting}
@@ -194,7 +194,7 @@ puppetdemo@precise32:~$ pwd
 /home/puppetdemo
 \end{lstlisting}
 
-Mit \lstinline$vagrant provisioning$ kann das Puppet Manifest erneut ausgeführt werden. Ohne Änderungen im Manifest oder in der virtuellen Maschine passiert nichts. Würde der Benutzer \lstinline$puppetdemo$ zum Beispiel entfernt, wird er wieder beim nächsten Provisionvorgang wieder angelegt.
+Mit \lstinline$vagrant provisioning$ kann das Puppet Manifest erneut ausgeführt werden. Ohne Änderungen im Manifest oder in der virtuellen Maschine passiert nichts. Würde der Benutzer \lstinline$puppetdemo$ zum Beispiel entfernt, wird er wieder beim nächsten Provision-Vorgang wieder angelegt.
 Will man das Puppet Manifest in der virtuellen Maschine ausführen, ist der \lstinline$puppet.manifests_path$ als \lstinline$/tmp/vagrant-puppet/manifest$ gemounted\reflst{vagrant-apply}.
 
 \begin{lstlisting}[language=sh,caption=Puppet apply im Box, label=vagrant-apply]
@@ -355,7 +355,7 @@ Nachdem dem erfolgreichen erstellen erster Manifeste, geht es nun darum wie man 
 
 \subsection{Puppet Server-Agent-Workflow}
 
-Der Puppet Server-Agent-Workflow funktioniert grundsätzlich nach dem Pull Prinzip, d.h. der Puppet Agent fragt aktiv beim Puppet Master nach was zu tun ist, er fordert einem \textit{Catalog} in dem er dem Master seinem Namen und seine Statusinformationen über sich selbst, sogennannte \textit{facts} mitteilt. Ein \textit{fact} wäre zum Beispiel das Betriebssystem auf dem der Agent läuft. Der Puppet Master idenitifiziert und sucht nach Arbeitsanweisungen für den Agent. Der Master compiliert aus allen anwendbaren Manifesten einen \textit{Catalog} und sendet ihn zurück an den Agent. Dieser wendet den \textit{Catalog} an d.h. es wird versucht den durch den \textit{Catalog} definierte Zustand herzustellen. Das Herstellen dieses Zustandes wird protokolliert und dann an den Puppet Master gesendet. Dieser Report kann zu einem späteren Zeitpunkt ausgewertet werden.
+Der Puppet Server-Agent-Workflow funktioniert grundsätzlich nach dem Pull Prinzip, d.h. der Puppet Agent fragt aktiv beim Puppet Master nach was zu tun ist, er fordert einem \textit{Catalog} in dem er dem Master seinem Namen und seine Statusinformationen über sich selbst, sogenannte \textit{facts} mitteilt. Ein \textit{fact} wäre zum Beispiel das Betriebssystem auf dem der Agent läuft. Der Puppet Master identifiziert und sucht nach Arbeitsanweisungen für den Agent. Der Master compiliert aus allen anwendbaren Manifesten einen \textit{Catalog} und sendet ihn zurück an den Agent. Dieser wendet den \textit{Catalog} an d.h. es wird versucht den durch den \textit{Catalog} definierte Zustand herzustellen. Das Herstellen dieses Zustandes wird protokolliert und dann an den Puppet Master gesendet. Dieser Report kann zu einem späteren Zeitpunkt ausgewertet werden.
 
 %TODO: make picture
 
@@ -387,7 +387,7 @@ node default {
   external_nodes = /usr/local/bin/my_node_classifier
 \end{lstlisting} 
 
-Alternativ du obigen deklarativen Ansatz kann Puppet zusätzlich auch einen External Node Classifier verwenden.  Ein External Node Classifier ist ein Script dem als Argument der Puppet Agent Name übergeben wird und der eine \lstinline$YAML$ Datei ausgibt. Die YAML Datei enthält eine Liste von Klassen und Parametern welche dem Knoten zugewiesen werden.  
+Alternativ zu obigen deklarativen Ansatz kann Puppet zusätzlich auch einen External Node Classifier verwenden.  Ein External Node Classifier ist ein Script dem als Argument der Puppet Agent Name übergeben wird und der eine \lstinline$YAML$ Datei ausgibt. Die YAML Datei enthält eine Liste von Klassen und Parametern welche dem Knoten zugewiesen werden.  
 
 Um vorigen Beispiel hat die Knotendeklaration\reflst{puppet-node-classifier} für den server2 das \lstinline$apache$ Modul enthalten, analog dazu müsste der ENC das YAML Dokument\reflst{puppet-enc-yaml-param}, ohne die letzte Zeile zurückliefern.  
 
@@ -414,8 +414,7 @@ Wir wollten für uns mit Puppet und Vagrant Lösungen für folgende Probleme fin
 
 Beim Jenkins Build wird nicht nur die Software compiliert sondern es erfolgt auch eine Paketierung.  Die Konfiguration kann aber nicht teil der Paketierung sein sondern muss zu einem späteren Zeitpunkt bestimmt werden. Weiters muss definiert, wenn möglich zentral, wo diese Applikationen mit welcher Konfiguration laufen. Puppet in Verknüpfung mit einem ENC bietet uns genau diese Funktionalität. Wir definieren im ENC, welche Server mit welcher Software von Puppet ausgestattet werden soll und über Parameter der dazugehörigen Puppet Module definieren wie diese Software konfiguriert wird. 
 
-Mithilfe von Puppet können wir auf Basis eines Standard-Image, wie in obigen bei Vagrant eingesetzt, einen Server fertig konfigurieren und auf unsere Bedürfnisse anpassen und das mit dem selben Mechanismus -- wiederholbar -- in jeder Umgebung, sei es QA in Produktion.
-
+Mithilfe von Puppet können wir auf Basis eines Standard-Image, wie in obigen bei Vagrant eingesetzt, einen Server fertig konfigurieren und auf unsere Bedürfnisse anpassen und das mit dem selben Mechanismus -- wiederholbar -- in jeder Umgebung, sei es QA oder Produktion.
 
 
 \section*{Autoren}
