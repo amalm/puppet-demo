@@ -402,6 +402,34 @@ classes:
         demoappname: mydemoapp
 \end{lstlisting} 
 
+\subsubsection{Dashboard}
+
+Das Puppet Dashboard kann nicht nur als ENC verwendet werden sondern ist primär eigentlich ein Reporting Tool. In Abbildung \ref{dashboard-overview} sieht man eine Übersicht über den aktuellen Knoten. Im oberen Teil sieht man welche Gruppen, Klassen und Parameter dem Knoten zugeordnet sind. In unserem Fall sind das die Klassen \lstinline$apache$ und \lstinline$demoapp$. Die Klassen müssen im Modulpfad des Puppet Master liegen, \lstinline$/etc/puppet/modules/$. Desweiteren sieht man eine Übersicht über die Änderungen am Knoten, als sich der Puppet Agent mit dem Master verbunden hat und das Provisioning durchgeführt wurde. Der Provisioning-Vorgang wird im Dashboard\reffig{dashboard-detail} und in der Ausgabe des Puppet Agent festgehalten\reffig{puppet-agent-run}  
+\begin{figure}[ht]
+\centering
+\subfigure[Übersicht eines Knoten]{
+\includegraphics[height=5.2cm]{images/dashboard2.pdf}
+	\label{dashboard-overview}
+}
+\subfigure[Änderungen im Dashboard]{
+\includegraphics[height=5.2cm]{images/dashboard1.pdf}
+	\label{dashboard-detail}
+}
+\caption{Puppet Dashboard}
+\label{dashboard}
+\end{figure}
+
+\begin{lstlisting}[language=sh,caption=Puppet Agent Run durchführen , label=puppet-agent-run]
+$ puppet agent --test --server vagrant-debian-squeeze-64.vagrantup.com
+info: Caching catalog for vagrant-debian-squeeze-64.vagrantup.com
+info: Applying configuration version '1349723897'
+notice: /Stage[main]/Apache/Package[apache2]/ensure: ensure changed 'purged' to 'present'
+notice: /Stage[main]/Demoapp/File[/var/www/demoapp]/ensure: created
+...
+notice: /File[/var/www/demoapp/js/knockout-2.1.0.js]/ensure: defined content as '{md5}235475c7c3dc43c7cb7f6125be536c32'
+notice: Finished catalog run in 35.07 seconds
+\end{lstlisting}
+
 \section{Resumeé}
 
 Wir wollten für uns mit Puppet und Vagrant Lösungen für folgende Probleme finden:
