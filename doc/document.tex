@@ -119,9 +119,9 @@ Eine Aufzählung der vom Puppet unterstützen Ressourcen wird mit \lstinline$pup
 
 
 \subsection{Testbox mit Vagrant}
-Für die Entwicklung und Tests von Puppet Modulen und Manifeste empfiehlt sich eine virtuelle Maschine. Puppet Labs stellt sollche für VMware und VirtualBox zur Verfügung unter \url{http://info.puppetlabs.com/download-learning-puppet-VM.html}. 
+Zum kennenlernen vom Puppet stellt Puppet Labs eine virtuelle Maschine für VMware beziehungsweise VirtualBox zur Verfügung unter \url{http://info.puppetlabs.com/download-learning-puppet-VM.html}. 
 
-Eine andere Möglichkeit ist \cite{vagrant}, welche wir auch verwenden. Vagrant ist eine Konfigurationstool für die Verwaltung von virtuellen Maschinen mit VirtualBox. Es kann in weiterer Folge auch Puppet, Chef oder Shell Scripts benutzen kann um die virtuelle Maschine zu konfigurieren. Analog zu Virtualbox kann Vagrant via Paketmanager für Linux installiert werden oder von den entsprechenden Downloadseiten heruntergeladen werden.
+Für die Entwicklung und Tests von Puppet Modulen und Manifeste empfehlen wir \cite{vagrant}. Vagrant ist eine Konfigurationstool für die Verwaltung von virtuellen Maschinen mit VirtualBox. Es kann in weiterer Folge auch Puppet, Chef oder Shell Scripts benutzen kann um die virtuelle Maschine zu konfigurieren. Vagrant benützt virtuelle Maschine die in so genannte Boxen gepackt sind. Zusätzlich zu der virtuellen Maschine beinhaltet eine Box unter anderem Chef and Puppet. Die Boxen sind portabel - sie laufen auf alle Platformen wo Vagrant laufen. Mit Vagrant ist es relativ einfach die Puppet Module und Manifeste auf unterschiedliche Zielumgebungen zu verifizieren indem man sie auf unterschiedliche Boxen testet. Vagrant via Paketmanager für Linux installiert werden oder von den entsprechenden Downloadseiten heruntergeladen werden.
 
 %TODO: erklären warum wir vagrant verwenden
 
