@@ -6,6 +6,7 @@
 \include{header/commands}
 
 
+
 \begin{document}
  \begin{titlepage}
      \begin{flushright}{\huge Continous Delivery with Puppet}
@@ -78,56 +79,23 @@ user { 'puppetdemo':
 }
 \end{lstlisting}
 
-Eine Aufzählung der vom Puppet unterstützen Ressourcen wird mit \lstinline$puppet resource --types$ ausgegeben. Die Ressourcen sind im Core Types Cheat Sheet \url{http://docs.puppetlabs.com/puppet_core_types_cheatsheet.pdf} auch gut beschrieben.
+Die Ressourcen sind im Core Types Cheat Sheet \url{http://docs.puppetlabs.com/puppet_core_types_cheatsheet.pdf} gut beschrieben.
 
 \section{Testbox mit Vagrant}
 Zum kennenlernen vom Puppet stellt Puppet Labs eine virtuelle Maschine für VMware beziehungsweise VirtualBox zur Verfügung unter \url{http://info.puppetlabs.com/download-learning-puppet-VM.html}. 
 
 Für die Entwicklung und Tests von Puppet Modulen und Manifeste bietet sich \cite{vagrant} an. Vagrant ist eine Konfigurationstool für die Verwaltung von virtuellen Maschinen mit VirtualBox. Es kann in weiterer Folge auch Puppet, Chef oder Shell Scripts benutzen kann um die virtuelle Maschine zu konfigurieren. Vagrant benützt virtuelle Maschine die in so genannte Boxen gepackt sind. Zusätzlich zu der virtuellen Maschine beinhaltet eine Box unter anderem Chef and Puppet. Die Boxen sind portabel - sie laufen auf alle Platformen wo Vagrant laufen. Mit Vagrant ist es relativ einfach die Puppet Module und Manifeste auf unterschiedliche Zielumgebungen zu verifizieren indem man sie auf unterschiedliche Boxen testet. Vagrant via Paketmanager für Linux installiert werden oder von den entsprechenden Downloadseiten heruntergeladen werden.
 
-\begin{wrapfigure}{l}{5cm}
-\vspace{-15pt}
-\begin{boxedminipage}{5cm}
-Eine Liste mit vorgefertigten Vagrant Boxen gibt es übrigens auf \url{http://www.vagrantbox.es/}
-\end{boxedminipage}
-\vspace{-15pt}
-\end{wrapfigure}
-
 Nachdem Vagrant und VirtualBox installiert worden sind, kann eine Box zum Testen aufsetzen. Hier wird eine 64 Bit Version von Debian Squeeze verwendet. Diese beinhaltet eine Minimalinstallation mit den für Vagrant üblichen Vorbereitungen: SSH Key Setup, VirtualBox Guest Additions, Puppet und Ruby, siehe auch \url{http://vagrantup.com/v1/docs/base_boxes.html}.
 
-\begin{lstlisting}[language=sh,caption=Download der Vagrant Box, label=vagrant-add]
-vagrant box add debian_squeeze_64 http://dl.dropbox.com/u/937870/VMs/squeeze64.box
-\end{lstlisting}
+Zum Downloaden wird folgendes Kommando verwendet: \lstinline[language=bash]$vagrant box add debian_squeeze_64 http://dl.dropbox.com/u/937870/VMs/squeeze64.box$
+Nachdem dem Download steht uns jetzt die  Vagrant Box \lstinline$debian_squeeze_64$ zur Verfügung. Nun kann in ein beliebiges Verzeichnis gewechselt werden und eine initiale Konfiguration basierend auf der Box angelegt werden: \lstinline[language=bash]$vagrant init debian_squeeze_64$.
 
-\begin{wrapfigure}{r}{4.5cm}
-\vspace{-20pt}
-\begin{boxedminipage}{4.5cm}
- Die Vagrant Boxen werden unter Unix in \lstinline!$HOME/.vagrant.d/boxes! installiert. 
-Falls man dies ändern will kann man die Umgebungsvariable \lstinline$VAGRANT_HOME$ setzen:
-\begin{lstlisting}[language=sh,label=vagrant-home,frame=none,numbers=none]
-export VAGRANT_HOME=$HOME/vagrant_home
-\end{lstlisting}
-\end{boxedminipage}
-\vspace{-20pt}
-\end{wrapfigure}
- 
 
-Nachdem dem Download steht uns jetzt die  Vagrant Box \lstinline$debian_squeeze_64$ zur Verfügung. Nun kann in ein beliebiges Verzeichnis gewechselt werden und eine initiale Konfiguration basierend auf der Box angelegt\reflst{vagrant-init}.
+Diese initiale Konfiguration beinhaltet alles was Vagrant zum Konfigurieren und Starten der Maschine braucht, es sind keine weiteren Einstellungen mehr nötig. Die virtuelle Maschine  wird mit \lstinline[language=bash]$vagrant up$ gestartet.
 
-\begin{lstlisting}[language=sh,caption=Vagrant initialisieren, label=vagrant-init]
-vagrant init debian_squeeze_64
-\end{lstlisting}
+Nachdem die virtuelle Maschine gestartet worden ist, kann man mit ssh sich anmelden, via \lstinline[language=bash]$vagrant ssh$. Unter Windows ist dieser Befehl derzeit nicht verfügbar und man muss deshalb mit Tools wie \cite{putty} darauf zugreifen.
 
-Diese initiale Konfiguration beinhaltet alles was Vagrant zum Konfigurieren und Starten der Maschine braucht, es sind keine weiteren Einstellungen mehr nötig. Die virtuelle Maschine  wird mit \reflst{vagrant-up} gestartet.
-
-\begin{lstlisting}[language=sh,caption=Starten der Vagrant Maschine, label=vagrant-up]
-vagrant up
-\end{lstlisting}
-
-Nachdem die virtuelle Maschine gestartet worden ist, kann man mit ssh sich anmelden \reflst{vagrant-ssh}. Unter Windows ist dieser Befehl derzeit nicht verfügbar und man muss deshalb mit Tools wie \cite{putty} darauf zugreifen.
-\begin{lstlisting}[language=sh,caption=Mit ssh in der Vagrant Maschine einsteigen, label=vagrant-ssh]
-vagrant ssh
-\end{lstlisting}
  
 Zum Aktivieren von Puppet muss die \lstinline$Vagrantfile$ angepasst werden. Dieser liegt im Verzeichnis wo der Befehl \lstinline$vagrant init$ ausgeführt worden ist. Diese Datei beinhaltet bereits Einträge für Puppet, welche jedoch auskommentiert sind. Nach dem entfernen der Kommentarzeichen für die Sektion \lstinline$config.vm.provision :puppet$, wird unter \lstinline$puppet.manifests_path$ und \lstinline$puppet.module_path$ die Verzeichnis wo Manifeste und Module liegen eingetragen. Als \lstinline$puppet.manifest_file$ wird \lstinline$user.pp$ eingetragen. Zum Testen von einer späteren Apache-Installation wird Port 6400 im Host auf Port 80 im Guest weitergeleitet:\lstinline$config.vm.forward_port 80, 6400$. Das ganze sollte dann in etwa wie in Listing \ref{vagrantprovisioning} aussehen.
   
@@ -176,16 +144,7 @@ notice: Finished catalog run in 0.39 seconds
 Vagrant kann wie VirtualBox die Maschine stilllegen mit \lstinline$vagrant suspend$ bzw mit \lstinline$vagrant resume$ wieder fortsetzen. Zum Starten und Stoppen kann man \lstinline$vagrant up$ bzw mit \lstinline$vagrant halt$ verwenden.  Sollte man die Box nicht mehr benötigen kann Sie mit \lstinline$vagrant destroy$ unwiderruflich löschen. Das Vagrantfile bleibt jedoch erhalten, somit kann man wieder bei Null anfangen und mit \lstinline$vagrant up$ die Box inklusive Provisioning mit Puppet wieder aufsetzen.
 
 \section{Apache Webserver und eine Applikation mit HTML und JavaScript mit Puppet installieren}
-Nachdem die Grundlagen von Puppet und Vagrant jetzt erklärt worden sind, wird ein Apache Webserver jetzt installiert. Da es wahrscheinlich ist, dass Apache für andere Applikationen auch genutzt wird, wird der Puppet Code dafür in einem Module abgelegt. Module sind wiederverwendbare Einheiten vom Code und Daten. Die Struktur eines Modules ist auf \url{http://docs.puppetlabs.com/learning/modules1.html} beschrieben, wie auszugsweise in Abbildung \ref{module_structure} dargestellt.
-\begin{lstlisting}[language=tree,caption=Puppet Module Struktur, label=module_structure]
-my_module
-|-- files
-|   `-- my_file.txt
-|-- manifests
-|   `-- init.pp
-`-- templates
-    `-- my_template.erb
-\end{lstlisting}
+Nachdem die Grundlagen von Puppet und Vagrant jetzt erklärt worden sind, wird ein Apache Webserver jetzt installiert. Da es wahrscheinlich ist, dass Apache für andere Applikationen auch genutzt wird, wird der Puppet Code dafür in einem Module abgelegt. Module sind wiederverwendbare Einheiten vom Code und Daten. Die Struktur eines Modules ist im Detail auf \url{http://docs.puppetlabs.com/learning/modules1.html} beschrieben.
 
 
 Auf die gleiche Ebene wie das manifests-Verzeichnis wird das Verzeichnis \lstinline$modules$ angelegt, darunter die Datei \lstinline$apache/manifests/init.pp$ und entsprechenden Verzeichnisse\reflst{apache-module}.
@@ -214,10 +173,7 @@ class apache {
 }
 \end{lstlisting}
 
-Um ein Modul in einem Manifest verwenden zu können, reicht es lediglich \lstinline$include apache$\reflst{setupapache.pp} zu schreiben.
-\begin{lstlisting}[language=puppet,caption=Inhalt von manifests/setupapache.pp, label=setupapache.pp]
-include apache
-\end{lstlisting}
+Um ein Modul in einem Manifest verwenden zu können, reicht es lediglich \lstinline[language=puppet]$include apache$ in unserem \lstinline$manifests/setupapache.pp$ zu schreiben.
 
 In Vagrantfile wird jetzt die Zeile \lstinline$puppet.manifest_file  = "user.pp"$ auf \lstinline$puppet.manifest_file  = "setupapache.pp"$ geändert. Mit \lstinline$vagrant provision$ ein\reflst{provisioning_apache} wird erneut die Konfiguration aktualisiert.
 
@@ -232,22 +188,19 @@ notice: Finished catalog run in 97.25 seconds
 Wird in einem unseren Browser die lokale Adresse über, den weitergeleiteten, Port 6400 aufrufen, kann festgestellt werden, dass der Apache Webserver läuft\reffig{apache}.
 \begin{figure}
   \begin{center}
-    \includegraphics[width=0.4\textwidth]{images/apache.pdf}
+    \includegraphics[width=0.4\textwidth]{images/apache.\graphicsext}
   \end{center}
   \caption{Apache aufrufen}
   \label{apache}
 \end{figure}
 
-Als nächstes sollte Puppet die Dateien für die Applikation in das Apache Wurzel Verzeichnis (\lstinline$/var/www/$) kopieren. Folgender Eintrag in Vagrantfile stellt das Host-Verzeichnis \lstinline$~/git/puppet-demo/puppet-demoapp/src/main/webapp$ als Guest-Verzeichnis \lstinline$/demoapp$ zur Verfügung\reflst{vagrantsharedfolder}. Das Guest-Verzeichnis dient als Quelle für die Kopie.
-\begin{lstlisting}[language=vagrant,caption=Shared folders in Vagrantfile konfigurieren, label=vagrantsharedfolder]
+Als nächstes sollte Puppet die Dateien für die Applikation in das Apache Wurzel Verzeichnis (\lstinline$/var/www/$) kopieren. Folgender Eintrag in Vagrantfile stellt das Host-Verzeichnis \lstinline$~/git/puppet-demo/puppet-demoapp/src/main/webapp$ als Guest-Verzeichnis, welches als Quelle dient, \lstinline$/demoapp$ zur Verfügung\reffig{sharedfolders}.
+
+\begin{lstlisting}[language=vagrant,caption=Shared folders in Vagrantfile konfigurieren, label=sharedfolders]
 config.vm.share_folder "demoapp", "/home/vagrant/demoapp", "~/git/puppet-demo/puppet-demoapp/src/main/webapp"
 \end{lstlisting}
 
-Mit dem Manifest \lstinline$manifests/demoapp.pp$ für die Installation der Applikation\reflst{puppetdemoapp}, wird definiert dass Puppet die Dateien vom zuvor spezifizierten Verzeichnis \lstinline$/demoapp$ nach \lstinline$/var/www/$ kopieren soll. Das Ganze ist im Module demoapp gekapselt\reffig{puppet-demo-module}.
-\begin{lstlisting}[language=puppet,caption=Puppet Manifest für die Applikation, label=puppetdemoapp]
-include apache
-include demoapp
-\end{lstlisting}
+Das Manifest \lstinline$manifests/demoapp.pp$ für die Installation der Applikation beinhaltet folgende zwei Zeilen: \lstinline[language=puppet]$include apache$ und  \lstinline[language=puppet]$include demoapp$. Es wird definiert dass Puppet die Dateien vom zuvor spezifizierten Verzeichnis \lstinline$/demoapp$ nach \lstinline$/var/www/$ kopieren soll. Das Ganze ist im Module demoapp gekapselt\reffig{puppet-demo-module}.
 
 \begin{lstlisting}[language=puppet,caption=Puppet Module demoapp,label=puppet-demo-module]
 class demoapp($demoappname='demoapp') {
@@ -266,15 +219,7 @@ Durch die Änderung der geteilten Verzeichnisse im Vagrantfile ist es notwendig 
 \begin{lstlisting}[language=sh,caption=Puppet reload mit Provisioning der Applikation, label=reloaddemoapp]
 $ vagrant reload
 [default] Attempting graceful shutdown of VM...
-[default] Clearing any previously set forwarded ports...
-[default] Forwarding ports...
-[default] -- 22 => 2222 (adapter 1)
-[default] -- 80 => 6400 (adapter 1)
-[default] Creating shared folders metadata...
-[default] Clearing any previously set network interfaces...
-[default] Booting VM...
-[default] Waiting for VM to boot. This can take a few minutes.
-[default] VM booted and ready for use!
+...
 [default] Mounting shared folders...
 [default] -- demoapp: /demoapp
 [default] -- v-root: /vagrant
@@ -292,7 +237,7 @@ notice: Finished catalog run in 1.34 seconds
 Nach Abschluss des Neustarts erfolgt auch automatisch wieder der Provisioning Vorgang durch Puppet und die neue Webapplikation kann über den Browser aufgerufen werden \reffig{demoapp}.
 \begin{figure}
   \begin{center}
-    \includegraphics[width=0.4\textwidth]{images/demoapp.pdf}
+    \includegraphics[width=0.4\textwidth]{images/demoapp.\graphicsext}
   \end{center}
   \caption{Die Applikation im Browser}
   \label{demoapp}
@@ -372,11 +317,11 @@ Das Puppet Dashboard kann nicht nur als ENC verwendet werden sondern ist primär
 \begin{figure}[ht]
 \centering
 \subfigure[Übersicht eines Knoten]{
-\includegraphics[height=5.2cm]{images/dashboard2.pdf}
+\includegraphics[height=5.2cm]{images/dashboard2.\graphicsext}
 	\label{dashboard-overview}
 }
 \subfigure[Änderungen im Dashboard]{
-\includegraphics[height=5.2cm]{images/dashboard1.pdf}
+\includegraphics[height=5.2cm]{images/dashboard1.\graphicsext}
 	\label{dashboard-detail}
 }
 \caption{Puppet Dashboard}
@@ -416,7 +361,7 @@ Mithilfe von Puppet kannauf Basis eines Standard-Image, wie in obigen bei Vagran
 \vskip0.3cm
 \begin{wrapfigure}{l}{0.3\textwidth}
 \vspace{-20pt}
-\includegraphics[width=0.3\textwidth]{images/anders.jpg}
+\includegraphics[width=0.3\textwidth]{images/anders.\graphicsext}
 \vspace{-20pt}
 \end{wrapfigure}
 hat jahrezehntelange Erfahrung in der Applikations- und Produktentwicklung im C++ und JavaEE Umfeld und arbeitet als IT Freelancer im automotive Bereich. 
@@ -427,7 +372,7 @@ hat jahrezehntelange Erfahrung in der Applikations- und Produktentwicklung im C+
 \vskip0.3cm
 \begin{wrapfigure}{l}{0.3\textwidth}
 \vspace{-20pt}
-\includegraphics[width=0.3\textwidth]{images/michael.jpg}
+\includegraphics[width=0.3\textwidth]{images/michael.\graphicsext}
 \vspace{-20pt}
 \end{wrapfigure}
 hat mehrjährige Erfahrung in JavaEE Entwicklungsumfeld in der Automotive und Immobilienbranche. Er administriert seit Jahren einen Linux-Root-Server für diverse Kunden.
