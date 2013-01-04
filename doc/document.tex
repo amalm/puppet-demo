@@ -25,27 +25,26 @@
 
 Iteratives Vorgehen bei der Entwicklung von Applikationen ist mittlerweile sehr verbreitet. Jede Iteration erweitert die Applikation mit neuer Funktionalität die qualitätsgesichert werden muss. Zusätzlich zu UnitTests, welche einzelne Teile prüfen, sind Integrationstests mit einer laufenden Applikation ratsam - sei es automatisch oder manuell.
 
-Für die Source-Code-Übersetzung, Testausführung und Paketiereung der Applikation helfen Continous Integration Systeme wie \cite{jenkins}.  Bei der Automatisierung des nächsten Schritt - automatische Installation und Konfiguration - bietet sich \cite{puppet} als Configuration Management Lösung an. Mit Puppet wird den erwarteten Zustand eines Systems beschrieben. Bei Abweichungen wird das System in dem erwarteten Zustand versetzt.
+Für die Source-Code-Übersetzung, Testausführung und Paketiereung der Applikation helfen Continous Integration Systeme wie \cite{jenkins}.  Bei der Automatisierung des nächsten Schritt - automatische Installation und Konfiguration - bietet sich \cite{puppet} als Configuration Management Lösung an. Mit Puppet beschreibt man den erwarteten Zustand eines Systems und bei Abweichungen wird das System in dem erwarteten Zustand versetzt.
 
 Folgende Probleme werden hier addresiert:
 \begin{itemize}
-\item Automatische Installation und Konfiguration nach erfolgreichen Build im Jenkins.
+\item Automatische Installation und Konfiguration nach erfolgreichen Build mit Jenkins.
 \begin{itemize}
 \item trotz Paketierung in Web Archivs (WARs) waren einige Konfigurationen, wie Datenbank-Parametern, manuell einzutragen.
 \end{itemize}
-\item Zentrale Definition, welche Applikationen mit welcher Konfiguration wo, auf welchen Servern, zu laufen haben.
-\item Neue virtuelle Servers sollten einfach von einem Basis-Image aufgesetzt werden und mit Puppet fertig konfiguriert werden, inklusive beispielsweise Apache und Tomcat.
+\item Zentrale Definition, welche Applikationen mit welcher Konfiguration, auf welchen Servern, zu laufen hat.
+\item Neue virtuelle Server sollten einfach von einem Basis-Image aufgesetzt werden und mit Puppet fertig konfiguriert werden, inklusive beispielsweise Apache und Tomcat.
 \item Gleiche Mechanismen und selbes Vorgehen bei der Test-/QA- und Produktionsumgebung.
 \end{itemize}
 
-In der Entwicklung heißt das in erster Linie Softwarecode der commited wird, der gebaut werden kann und die automatisierten Tests besteht soll auch installiert werden. Damit kann gewährleistet bzw. überprüft werden, dass die Software zu jedem Zeitpunkt einsatzbereit ist und nicht nur auf einem Entwicklungs-PC funktioniert.
+In der Entwicklung heißt das in erster Linie, dass der Softwarecode der commited wird und  der gebaut werden kann sowie die automatisierten Tests besteht auch installiert werden soll. Damit kann gewährleistet bzw. überprüft werden, dass die Software zu jedem Zeitpunkt einsatzbereit ist und nicht nur auf einem Entwicklungs-PC funktioniert.
 
 \section{Puppet Einführung}
 
-Puppet benutzt eine Domain-Specific-Language(DSL) um den Zustand eines System zu beschreiben. Der Code wird strukturiert in Manifeste und Module.
+Puppet benutzt eine Domain-Specific-Language(DSL) um den Zustand eines System zu beschreiben. Der Code wird in Manifeste und Module strukturiert.
 
-Ein Manifest ist ein Puppet "Program". Module sind für die Puppet-EntwicklerIn ähnlich wie Libraries für Programmierer. Ein Großteil der Manifeste und Module machen die Definition von Ressourcen aus. Eine Ressource ist ein atomarer Typ eines Systems, es entspricht einer physisches Identität eines Computersystems. Ein Beispiel für eine solche Ressource, wäre ein Benutzer oder eine Datei. In Listing \ref{puppet-add-user} wird die Ressource user \lstinline$puppetdemo$ und dazugehörige Home-Verzeichnis \lstinline$/home/puppetdemo$ definiert. Der Aufruf \lstinline$sudo puppet apply manifest/user.pp$ führt es aus und muss mit 'sudo' aufgerufen werden damit Verzeichnis und Benutzer angelegt werden können, da dies nur der Administrator darf.
-Mit \lstinline$puppet resource user puppetdemo$ wird die Informationen zum neu angelegten Benutzer ausgegeben\reflst{puppet-add-user-info}.
+Ein Manifest ist ein Puppet "Program". Module sind für die Puppet-Entwickler ähnlich wie Libraries für Programmierer. Ein Großteil der Manifeste und Module machen die Definition von Ressourcen aus. Eine Ressource ist ein atomarer Typ eines Systems, und entspricht einer physisches Identität eines Computersystems. Ein Beispiel für eine solche Ressource, wäre ein Benutzer oder eine Datei. In Listing \ref{puppet-add-user} wird die Ressource user \lstinline$puppetdemo$ und das dazugehörige Home-Verzeichnis \lstinline$/home/puppetdemo$ definiert. Der Aufruf \lstinline$sudo puppet apply manifest/user.pp$ führt dieses aus. Mit \lstinline$puppet resource user puppetdemo$ werden die Informationen zum neu angelegten Benutzer ausgegeben\reflst{puppet-add-user-info}.
 
 
 \begin{lstlisting}[language=sh,caption=User mit Puppet anlegen, label=puppet-add-user]
@@ -82,11 +81,11 @@ user { 'puppetdemo':
 Die Ressourcen sind im Core Types Cheat Sheet \url{http://docs.puppetlabs.com/puppet_core_types_cheatsheet.pdf} gut beschrieben.
 
 \section{Testbox mit Vagrant}
-Zum kennenlernen vom Puppet stellt Puppet Labs eine virtuelle Maschine für VMware beziehungsweise VirtualBox zur Verfügung unter \url{http://info.puppetlabs.com/download-learning-puppet-VM.html}. 
+Zum Kennenlernen vom Puppet stellt Puppet Labs eine virtuelle Maschine (VM) für VMware beziehungsweise VirtualBox unter \url{http://info.puppetlabs.com/download-learning-puppet-VM.html} zur Verfügung. 
 
-Für die Entwicklung und Tests von Puppet Modulen und Manifeste bietet sich \cite{vagrant} an. Vagrant ist eine Konfigurationstool für die Verwaltung von virtuellen Maschinen mit VirtualBox. Es kann in weiterer Folge auch Puppet, Chef oder Shell Scripts benutzen kann um die virtuelle Maschine zu konfigurieren. Vagrant benützt virtuelle Maschine die in so genannte Boxen gepackt sind. Zusätzlich zu der virtuellen Maschine beinhaltet eine Box unter anderem Chef and Puppet. Die Boxen sind portabel - sie laufen auf alle Platformen wo Vagrant laufen. Mit Vagrant ist es relativ einfach die Puppet Module und Manifeste auf unterschiedliche Zielumgebungen zu verifizieren indem man sie auf unterschiedliche Boxen testet. Vagrant via Paketmanager für Linux installiert werden oder von den entsprechenden Downloadseiten heruntergeladen werden.
+Zusätzlich bietet sich für die Entwicklung und Tests von Puppet Modulen und Manifesten \cite{vagrant} an. Vagrant ist eine Konfigurationstool für die Verwaltung von VMs mit VirtualBox. Es kann in weiterer Folge auch Puppet, Chef oder Shell Scripts benutzen um die VMs zu konfigurieren. Vagrant benützt eine VM, die in eine sogenannte Box gepackt ist. Zusätzlich zu der VM beinhaltet eine Box unter anderem Chef oder Puppet. Mit Vagrant ist es einfach Puppet Module und Manifeste auf unterschiedliche Zielumgebungen zu verifizieren indem man sie auf unterschiedlichen Boxen testet. Vagrant kann via Paketmanager für Linux installiert werden oder von den entsprechenden Downloadseiten heruntergeladen werden.
 
-Nachdem Vagrant und VirtualBox installiert worden sind, kann eine Box zum Testen aufsetzen. Hier wird eine 64 Bit Version von Debian Squeeze verwendet. Diese beinhaltet eine Minimalinstallation mit den für Vagrant üblichen Vorbereitungen: SSH Key Setup, VirtualBox Guest Additions, Puppet und Ruby, siehe auch \url{http://vagrantup.com/v1/docs/base_boxes.html}.
+Nachdem Vagrant und VirtualBox installiert wurden, kann eine Box zum Testen aufsetzt werden. In diesem Fall wird eine 64 Bit Version von Debian Squeeze verwendet. Diese beinhaltet eine Minimalinstallation mit den für Vagrant üblichen Vorbereitungen: SSH Key Setup, VirtualBox Guest Additions, Puppet und Ruby, siehe auch \url{http://vagrantup.com/v1/docs/base_boxes.html}.
 
 Zum Downloaden wird folgendes Kommando verwendet: \lstinline[language=bash]$vagrant box add debian_squeeze_64 http://dl.dropbox.com/u/937870/VMs/squeeze64.box$
 Nachdem dem Download steht uns jetzt die  Vagrant Box \lstinline$debian_squeeze_64$ zur Verfügung. Nun kann in ein beliebiges Verzeichnis gewechselt werden und eine initiale Konfiguration basierend auf der Box angelegt werden: \lstinline[language=bash]$vagrant init debian_squeeze_64$.
@@ -94,13 +93,13 @@ Nachdem dem Download steht uns jetzt die  Vagrant Box \lstinline$debian_squeeze_
 
 Diese initiale Konfiguration beinhaltet alles was Vagrant zum Konfigurieren und Starten der Maschine braucht, es sind keine weiteren Einstellungen mehr nötig. Die virtuelle Maschine  wird mit \lstinline[language=bash]$vagrant up$ gestartet.
 
-Nachdem die virtuelle Maschine gestartet worden ist, kann man mit ssh sich anmelden, via \lstinline[language=bash]$vagrant ssh$. Unter Windows ist dieser Befehl derzeit nicht verfügbar und man muss deshalb mit Tools wie \cite{putty} darauf zugreifen.
+Nachdem die VM gestartet worden ist, kann man sich mit ssh anmelden, via \lstinline[language=bash]$vagrant ssh$. Unter Windows ist dieser Befehl derzeit nicht verfügbar und man muss deshalb mit Tools wie \cite{putty} darauf zugreifen.
 
  
-Zum Aktivieren von Puppet muss die \lstinline$Vagrantfile$ angepasst werden. Dieser liegt im Verzeichnis wo der Befehl \lstinline$vagrant init$ ausgeführt worden ist. Diese Datei beinhaltet bereits Einträge für Puppet, welche jedoch auskommentiert sind. Nach dem entfernen der Kommentarzeichen für die Sektion \lstinline$config.vm.provision :puppet$, wird unter \lstinline$puppet.manifests_path$ und \lstinline$puppet.module_path$ die Verzeichnis wo Manifeste und Module liegen eingetragen. Als \lstinline$puppet.manifest_file$ wird \lstinline$user.pp$ eingetragen. Zum Testen von einer späteren Apache-Installation wird Port 6400 im Host auf Port 80 im Guest weitergeleitet:\lstinline$config.vm.forward_port 80, 6400$. Das ganze sollte dann in etwa wie in Listing \ref{vagrantprovisioning} aussehen.
+Zum Aktivieren von Puppet muss \lstinline$Vagrantfile$ angepasst werden. Dieser liegt im Verzeichnis in dem auch der Befehl \lstinline$vagrant init$ ausgeführt worden ist. Diese Datei beinhaltet bereits Einträge für Puppet, welche jedoch auskommentiert sind. Nach dem entfernen der Kommentarzeichen für die Sektion \lstinline$config.vm.provision :puppet$, wird unter \lstinline$puppet.manifests_path$ und \lstinline$puppet.module_path$ das Verzeichnis in dem Manifeste und Module liegen eingetragen. Als \lstinline$puppet.manifest_file$ wird \lstinline$user.pp$ eingetragen. Zum Testen einer späteren Apache-Installation wird Port 8080 im Host auf Port 80 im Guest weitergeleitet:\lstinline$config.vm.forward_port 80, 8080$. Das ganze sollte dann in etwa wie in Listing \ref{vagrantprovisioning} aussehen.
   
 \begin{lstlisting}[language=vagrant,caption=Puppet Provisioning in Vagrantfile konfigurieren, label=vagrantprovisioning]
-  config.vm.forward_port 80, 6400  
+  config.vm.forward_port 80, 8080  
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "~/git/puppet-demo/puppet/manifests"
     puppet.module_path = "~/git/puppet-demo/puppet/modules"
@@ -108,7 +107,7 @@ Zum Aktivieren von Puppet muss die \lstinline$Vagrantfile$ angepasst werden. Die
   end
 \end{lstlisting} 
 
-Bei dieser Änderung muss die Vagrantbox neu geladen werden, da geteilte Verzeichnisse nur beim Starten des Hosts erkannt und automatisch gemounted werden. Zusätzlich dazu wird beim Starten das Provisioning, durch Puppet mit den Anweisungen aus \lstinline$user.pp$ durchgeführt. Mit \lstinline$puppet ssh$ kann verifiziert werden, dass der User 'puppetdemo' mit Home-Verzeichnis /home/puppetdemo vorhanden ist\reflst{vagrant-reload}.
+Bei dieser Änderung muss die Vagrantbox neu geladen werden, da geteilte Verzeichnisse nur beim Starten des Hosts erkannt und automatisch gemounted werden. Zusätzlich dazu wird beim Starten das Provisioning, durch Puppet mit den Anweisungen aus \lstinline$user.pp$ durchgeführt. Mit \lstinline$vagrant ssh$ kann verifiziert werden, dass der User 'puppetdemo' mit Home-Verzeichnis /home/puppetdemo vorhanden ist\reflst{vagrant-reload}.
 
 \begin{lstlisting}[language=sh,caption=Vagrant Box neu laden, label=vagrant-reload]
 vagrant reload
@@ -124,7 +123,7 @@ puppetdemo@precise32:~$ pwd
 /home/puppetdemo
 \end{lstlisting}
 
-Mit \lstinline$vagrant provisioning$ kann das Puppet Manifest erneut ausgeführt werden. Ohne Änderungen im Manifest oder in der virtuellen Maschine passiert nichts. Würde der Benutzer \lstinline$puppetdemo$ zum Beispiel entfernt, wird er wieder beim nächsten Provision-Vorgang wieder angelegt.
+Mit \lstinline$vagrant provisioning$ kann das Puppet Manifest erneut ausgeführt werden. Ohne Änderungen im Manifest oder in der VM passiert nichts. Würde der Benutzer \lstinline$puppetdemo$ zum Beispiel entfernt, wird er beim nächsten Provision-Vorgang erneut angelegt.
 Will man das Puppet Manifest in der virtuellen Maschine manuell ausführen, ist der \lstinline$puppet.manifests_path$ als \lstinline$/tmp/vagrant-puppet/manifest$ gemounted\reflst{vagrant-apply}.
 
 \begin{lstlisting}[language=sh,caption=Puppet apply im Box, label=vagrant-apply]
@@ -141,10 +140,10 @@ notice: /Stage[main]//Node[default]/User[puppetdemo]/ensure: created
 notice: Finished catalog run in 0.39 seconds
 \end{lstlisting}
 
-Vagrant kann wie VirtualBox die Maschine stilllegen mit \lstinline$vagrant suspend$ bzw mit \lstinline$vagrant resume$ wieder fortsetzen. Zum Starten und Stoppen kann man \lstinline$vagrant up$ bzw mit \lstinline$vagrant halt$ verwenden.  Sollte man die Box nicht mehr benötigen kann Sie mit \lstinline$vagrant destroy$ unwiderruflich löschen. Das Vagrantfile bleibt jedoch erhalten, somit kann man wieder bei Null anfangen und mit \lstinline$vagrant up$ die Box inklusive Provisioning mit Puppet wieder aufsetzen.
+Vagrant kann wie VirtualBox die VM stilllegen mit \lstinline$vagrant suspend$ bzw mit \lstinline$vagrant resume$ wieder fortsetzen. Zum Starten und Stoppen kann man \lstinline$vagrant up$ bzw. \lstinline$vagrant halt$ verwenden.  Sollte man die Box nicht mehr benötigen kann Sie mit \lstinline$vagrant destroy$ unwiderruflich gelöscht werden. Das Vagrantfile bleibt jedoch erhalten, somit kann man wieder neu beginnen mit \lstinline$vagrant up$. 
 
 \section{Apache Webserver und eine Applikation mit HTML und JavaScript mit Puppet installieren}
-Nachdem die Grundlagen von Puppet und Vagrant jetzt erklärt worden sind, wird ein Apache Webserver jetzt installiert. Da es wahrscheinlich ist, dass Apache für andere Applikationen auch genutzt wird, wird der Puppet Code dafür in einem Module abgelegt. Module sind wiederverwendbare Einheiten vom Code und Daten. Die Struktur eines Modules ist im Detail auf \url{http://docs.puppetlabs.com/learning/modules1.html} beschrieben.
+Nachdem die Grundlagen von Puppet und Vagrant erklärt wurden, wird ein Apache Webserver installiert. Da es wahrscheinlich ist, dass Apache für andere Applikationen auch genutzt wird, wird der Puppet Code dafür in einem Modul abgelegt. Module sind wiederverwendbare Code- und Dateieinheiten. Die Struktur eines Modules ist im Detail auf \url{http://docs.puppetlabs.com/learning/modules1.html} beschrieben.
 
 
 Auf die gleiche Ebene wie das manifests-Verzeichnis wird das Verzeichnis \lstinline$modules$ angelegt, darunter die Datei \lstinline$apache/manifests/init.pp$ und entsprechenden Verzeichnisse\reflst{apache-module}.
@@ -158,7 +157,7 @@ puppet
             `-- init.pp
 \end{lstlisting}
 
-Die Datei \lstinline$modules/apache/manifests/init.pp$ ist recht kompakt und zeigt auf einen Blick einen der großen Vorteile von Puppet. Die Ressourcen \lstinline$package$ und \lstinline$service$ verstecken die Komplexität und die plattformspezifische Vorgänge für Installation von Paketen und das Starten der Dienste\reflst{apache-init.pp}.
+Die Datei \lstinline$modules/apache/manifests/init.pp$ ist recht kompakt und zeigt auf einen Blick einen der großten Vorteile von Puppet. Die Ressourcen \lstinline$package$ und \lstinline$service$ verstecken die Komplexität und die plattformspezifische Vorgänge für Installation von Paketen und das Starten der Dienste\reflst{apache-init.pp}.
 \begin{lstlisting}[language=puppet,caption=Inhalt von modules/apache/manifests/init.pp, label=apache-init.pp]
 class apache {
         package {
@@ -175,7 +174,7 @@ class apache {
 
 Um ein Modul in einem Manifest verwenden zu können, reicht es lediglich \lstinline[language=puppet]$include apache$ in unserem \lstinline$manifests/setupapache.pp$ zu schreiben.
 
-In Vagrantfile wird jetzt die Zeile \lstinline$puppet.manifest_file  = "user.pp"$ auf \lstinline$puppet.manifest_file  = "setupapache.pp"$ geändert. Mit \lstinline$vagrant provision$ ein\reflst{provisioning_apache} wird erneut die Konfiguration aktualisiert.
+In Vagrantfile wird jetzt die Zeile \lstinline$puppet.manifest_file  = "user.pp"$ auf \lstinline$puppet.manifest_file  = "setupapache.pp"$ geändert. Mit \lstinline$vagrant provision$ \reflst{provisioning_apache}, wird erneut die Konfiguration aktualisiert.
 
 \begin{lstlisting}[language=sh,caption=vagrant provisioning für Apache, label=provisioning_apache]
 $ vagrant provision
@@ -185,7 +184,7 @@ notice: /Stage[main]/Apache/Package[apache2]/ensure: ensure changed 'purged' to 
 notice: Finished catalog run in 97.25 seconds
 \end{lstlisting}
 
-Wird in einem unseren Browser die lokale Adresse über, den weitergeleiteten, Port 6400 aufrufen, kann festgestellt werden, dass der Apache Webserver läuft\reffig{apache}.
+Wird in einem unseren Browser die lokale Adresse über, den weitergeleiteten, Port 8080 aufgerufen, kann festgestellt werden, dass der Apache Webserver läuft\reffig{apache}.
 \begin{figure}
   \begin{center}
     \includegraphics[width=0.4\textwidth]{images/apache.\graphicsext}
@@ -194,13 +193,13 @@ Wird in einem unseren Browser die lokale Adresse über, den weitergeleiteten, Po
   \label{apache}
 \end{figure}
 
-Als nächstes sollte Puppet die Dateien für die Applikation in das Apache Wurzel Verzeichnis (\lstinline$/var/www/$) kopieren. Folgender Eintrag in Vagrantfile stellt das Host-Verzeichnis \lstinline$~/git/puppet-demo/puppet-demoapp/src/main/webapp$ als Guest-Verzeichnis, welches als Quelle dient, \lstinline$/demoapp$ zur Verfügung\reffig{sharedfolders}.
+Als Nächstes sollte Puppet die Dateien für die Applikation in das Apache Wurzel Verzeichnis (\lstinline$/var/www/$) kopieren. Folgender Eintrag in das Vagrantfile stellt das Host-Verzeichnis \lstinline$~/git/puppet-demo/puppet-demoapp/src/main/webapp$ als Guest-Verzeichnis, welches als Quelle dient, (\lstinline$/home/vagrant/demoapp$) zur Verfügung\reffig{sharedfolders}.
 
 \begin{lstlisting}[language=vagrant,caption=Shared folders in Vagrantfile konfigurieren, label=sharedfolders]
 config.vm.share_folder "demoapp", "/home/vagrant/demoapp", "~/git/puppet-demo/puppet-demoapp/src/main/webapp"
 \end{lstlisting}
 
-Das Manifest \lstinline$manifests/demoapp.pp$ für die Installation der Applikation beinhaltet folgende zwei Zeilen: \lstinline[language=puppet]$include apache$ und  \lstinline[language=puppet]$include demoapp$. Es wird definiert dass Puppet die Dateien vom zuvor spezifizierten Verzeichnis \lstinline$/demoapp$ nach \lstinline$/var/www/$ kopieren soll. Das Ganze ist im Module demoapp gekapselt\reffig{puppet-demo-module}.
+Das Manifest \lstinline$manifests/demoapp.pp$ für die Installation der Applikation beinhaltet folgende zwei Zeilen: \lstinline[language=puppet]$include apache$ und  \lstinline[language=puppet]$include demoapp$. Es wird definiert dass Puppet die Dateien vom zuvor spezifizierten Verzeichnis \lstinline$/home/vagrant/demoapp$ nach \lstinline$/var/www/$ kopieren soll. Das Ganze ist im Module demoapp gekapselt\reffig{puppet-demo-module}.
 
 \begin{lstlisting}[language=puppet,caption=Puppet Module demoapp,label=puppet-demo-module]
 class demoapp($demoappname='demoapp') {
@@ -256,17 +255,17 @@ notice: Finished catalog run in 0.71 seconds
 
 \section{Puppet am Server}
 
-Nachdem dem erfolgreichen erstellen erster Manifeste, geht es nun darum wie man die Manifeste auf einem Server verlagert und eine ganze Serverfarm damit betreibt. Grundsätzlich unterscheidet Puppet zwischen zwei Typen: Puppet Master und Puppet Agent. Der Puppet Agent ist auf einem x-belieben Server installiert und kontaktiert eine zentrale Einheit, den Puppet Master, um von ihn gesteuert zu werden. 
+Nachdem dem erfolgreichen Erstellen erster Manifeste, geht es nun darum wie man die Manifeste auf einem Server verlagert und eine ganze Serverfarm damit betreibt. Grundsätzlich unterscheidet Puppet zwischen zwei Typen: Puppet Master und Puppet Agent. Der Puppet Agent ist auf einem x-belieben Server installiert und kontaktiert eine zentrale Einheit, den Puppet Master, um von ihm gesteuert zu werden. 
 
 \subsection{Puppet Server-Agent-Workflow}
 
-Der Puppet Server-Agent-Workflow funktioniert grundsätzlich nach dem Pull Prinzip, d.h. der Puppet Agent fragt aktiv beim Puppet Master nach was zu tun ist, er fordert einem \textit{Catalog} an in dem er dem Master seinem Namen und seine Informationen über sich selbst, sogenannte \textit{facts} mitteilt. Ein \textit{fact} wäre zum Beispiel das Betriebssystem des Agent. Der Puppet Master identifiziert und sucht nach Arbeitsanweisungen für den Agent. Der Master compiliert aus allen anwendbaren Manifesten einen \textit{Catalog} und sendet ihn zurück an den Agent. Dieser wendet den \textit{Catalog} an d.h. es wird versucht den durch den \textit{Catalog} definierten Zustand herzustellen. Das Herstellen dieses Zustandes wird protokolliert und dann an den Puppet Master gesendet. Dieser Report kann zu einem späteren Zeitpunkt ausgewertet werden.
+Der Puppet Server-Agent-Workflow funktioniert grundsätzlich nach dem Pull Prinzip, d.h. der Puppet Agent fragt aktiv beim Puppet Master nach was zu tun ist. Er fordert einem \textit{Catalog} an in dem er dem Master seinem Namen und Informationen über sich selbst, sogenannte \textit{facts} mitteilt. Ein \textit{fact} wäre zum Beispiel das Betriebssystem des Agent. Der Puppet Master identifiziert und sucht nach Arbeitsanweisungen für den Agent. Der Master compiliert aus allen anwendbaren Manifesten einen \textit{Catalog} und sendet ihn zurück an den Agent. Dieser wendet den \textit{Catalog} an d.h. es wird versucht den durch den \textit{Catalog} definierten Zustand herzustellen. Das Herstellen dieses Zustandes wird protokolliert und dann an den Puppet Master gesendet. Dieser Report kann zu einem späteren Zeitpunkt ausgewertet werden.
 
 %TODO: make picture
 
 \subsection{Arbeitsanweisungen für den Agent suchen}
 
-Wenn der Puppet Master vom Puppet Agent kontaktiert wird, wird er mithilfe seines Hostnamen identifiziert und der Puppet Master liest das Manifest \lstinline$/etc/puppet/manifests/site.pp$ ein und sucht nach einer passenden \lstinline$node$ Definition. Wenn der Master nun vom server1.example.org kontaktiert wird wird dieser die Ausgabe \lstinline$hello server1!$ erzeugen, analog für server2. Statt alle Server einzeln zu definieren kann man auch das Schlüsselword default verwenden damit werden die beinhaltende Anweisungen auf allen Servern die den Master kontaktieren ausgeführt werden. 
+Wenn der Puppet Master vom Puppet Agent kontaktiert wird, wird er mithilfe seines Hostnamen identifiziert und der Puppet Master liest das Manifest \lstinline$/etc/puppet/manifests/site.pp$ ein und sucht nach einer passenden \lstinline$node$ Definition. Wenn der Master nun vom server1.example.org kontaktiert wird wird dieser die Ausgabe \lstinline$hello server1!$ erzeugen, analog für server2. Statt alle Server einzeln zu definieren kann man auch das Schlüsselwort default verwenden. Damit werden die beinhaltenden Anweisungen auf allen Servern die den Master kontaktieren ausgeführt werden. 
 
 %TODO: was passiert bei kontakt von server 3
 
@@ -294,11 +293,11 @@ node default {
   external_nodes = /usr/local/bin/my_node_classifier
 \end{lstlisting} 
 
-Alternativ zu obigen deklarativen Ansatz kann Puppet zusätzlich auch einen External Node Classifier verwenden.  Ein External Node Classifier ist ein Script dem als Argument der Puppet Agent Name übergeben wird und der eine \lstinline$YAML$ Datei ausgibt. Die YAML Datei enthält eine Liste von Klassen und Parametern welche dem Knoten zugewiesen werden.  
+Alternativ zu obigen deklarativen Ansatz kann Puppet auch einen External Node Classifier verwenden.  Ein External Node Classifier ist ein Script dem als Argument der Puppet Agent Name übergeben wird und der eine \lstinline$YAML$ Datei ausgibt. Die YAML Datei enthält eine Liste von Klassen und Parametern welche dem Knoten zugewiesen werden.  
 
 Im vorigen Beispiel hat die Knotendeklaration\reflst{puppet-node-classifier} für den server2 das \lstinline$apache$ Modul enthalten, analog dazu müsste der ENC das YAML Dokument\reflst{puppet-enc-yaml-param}, ohne die letzte Zeile zurückliefern.  
 
-Interessant wird das Ganze erst wenn der ENC mit einem Konfigurationswerkzeug gekoppelt wird, in dem dynamisch Konfigurationen erstellt werden können. Ein solches Werkzeug wäre das \cite{puppetdashboard}. Nachteil hierbei ist es, das parametrisierte Klassen derzeit nicht verwaltet werden können. In unserem obigen Beispiel könnte die Demoapplikation unter einer anderen URL verfügbar sein in dem der Klassenparameter demoappname überschreiben wird\reflst{puppet-enc-yaml-param}.
+Interessant wird dies erst wenn der ENC mit einem Konfigurationswerkzeug gekoppelt wird, in dem dynamisch Konfigurationen erstellt werden können. Ein solches Werkzeug wäre das \cite{puppetdashboard}. Nachteil hierbei ist es, dass parametrisierte Klassen derzeit nicht verwaltet werden können. In unserem obigen Beispiel könnte die Demoapplikation unter einer anderen URL verfügbar sein in dem der Klassenparameter demoappname überschreiben wird\reflst{puppet-enc-yaml-param}.
 
 %TODO: über eigen implementierung schreiben?
 
@@ -313,7 +312,7 @@ classes:
 
 \subsubsection{Dashboard}
 
-Das Puppet Dashboard kann nicht nur als ENC verwendet werden sondern ist primär eigentlich ein Reporting Tool. In Abbildung \ref{dashboard-overview} sieht man eine Übersicht über den aktuellen Knoten. Im oberen Teil sieht man welche Gruppen, Klassen und Parameter dem Knoten zugeordnet sind. In unserem Fall sind das die Klassen \lstinline$apache$ und \lstinline$demoapp$. Die Klassen müssen im Modulpfad (\lstinline$/etc/puppet/modules/$) des Puppet Master liegen. Desweiteren sieht man eine Übersicht über die Änderungen am Knoten, als sich der Puppet Agent mit dem Master verbunden hat und das Provisioning durchgeführt wurde. Der Provisioning-Vorgang wird im Dashboard\reffig{dashboard-detail} und in der Ausgabe des Puppet Agent festgehalten\reffig{puppet-agent-run}.
+Das Puppet Dashboard kann nicht nur als ENC verwendet werden, sondern ist primär eigentlich ein Reporting Tool. In Abbildung \ref{dashboard-overview} sieht man eine Übersicht über den aktuellen Knoten. Im oberen Teil wird gezeigt welche Gruppen, Klassen und Parameter dem Knoten zugeordnet sind. In unserem Fall sind das die Klassen \lstinline$apache$ und \lstinline$demoapp$. Die Klassen müssen im Modulpfad (\lstinline$/etc/puppet/modules/$) des Puppet Master liegen. Desweiteren sieht man eine Übersicht über die Änderungen am Knoten, als sich dessen Puppet Agent mit dem Master verbunden hatte und das Provisioning durchgeführt wurde. Ein Provisioning-Vorgang wird im Dashboard\reffig{dashboard-detail} und in der Ausgabe des Puppet Agent festgehalten\reffig{puppet-agent-run}.
 \begin{figure}[ht]
 \centering
 \subfigure[Übersicht eines Knoten]{
@@ -344,14 +343,14 @@ notice: Finished catalog run in 35.07 seconds
 Ziele einer Lösung mit Puppet und Vagrant:
 \begin{itemize}
 \item Automatische Installation und Konfiguration nach erfolgreichen Build im Jenkins 
-\item Zentrale Definition, welche Applikationen mit welcher Konfiguration wo, auf welchen Servern, zu laufen haben.
-\item Neue virtuelle Servers sollten einfach von einem Basis-Image aufgesetzt werden und mit Puppet fertig konfiguriert werden, inklusive beispielsweise Apache und Tomcat.
+\item Zentrale Definition, welche Applikationen mit welcher Konfiguration, auf welchen Servern, zu laufen haben.
+\item Neue virtuelle Server sollten einfach von einem Basis-Image aufgesetzt werden und mit Puppet fertig konfiguriert werden, inklusive beispielsweise Apache und Tomcat.
 \item Gleiche Mechanismen und Vorgehen bei der Test-/QA- und Produktionsumgebung.
 \end{itemize}
 
-Beim Jenkins Build wird nicht nur die Software compiliert sondern es erfolgt auch eine Paketierung.  Die Konfiguration kann aber nicht Teil der Paketierung sein sondern muss zu einem späteren Zeitpunkt bestimmt werden. Weiters muss definiert werden, wenn möglich zentral, wo diese Applikationen mit welcher Konfiguration zu laufen haben. Puppet in Verknüpfung mit einem ENC bietet uns genau diese Funktionalität. Im ENC wird definiert, welcher Server mit welcher Software von Puppet ausgestattet werden soll und über Parameter der dazugehörigen Puppet Module wird festgelegt, wie diese Software konfiguriert wird. 
+Beim Jenkins Build wird nicht nur die Software compiliert sondern es erfolgt auch eine Paketierung.  Die Konfiguration kann aber nicht Teil der Paketierung sein sondern muss zu einem späteren Zeitpunkt bestimmt werden. Weiters muss möglichst zentral definiert werden wo diese Applikationen mit welcher Konfiguration zu laufen haben. Puppet in Verknüpfung mit einem ENC bietet uns genau diese Funktionalität. Im ENC wird definiert, welcher Server mit welcher Software von Puppet ausgestattet werden soll und über Parameter der dazugehörigen Puppet Module wird festgelegt, wie diese Software konfiguriert wird. 
 
-Mithilfe von Puppet kannauf Basis eines Standard-Image, wie in obigen bei Vagrant eingesetzt, einen Server fertig konfigurieren und auf die Bedürfnisse anpassen und das mit dem selben Mechanismus -- wiederholbar -- in jeder Umgebung, sei es QA oder Produktion.
+Mithilfe von Puppet kann auf Basis eines Standard-Image, wie in obigen bei Vagrant eingesetzt, ein Server fertig konfiguriert und auf die Bedürfnisse anpasst werden und das mit dem selben Mechanismus -- wiederholbar -- in jeder Umgebung, sei es QA oder Produktion.
 
 \section*{Autoren}
 
@@ -375,7 +374,7 @@ hat jahrezehntelange Erfahrung in der Applikations- und Produktentwicklung im C+
 \includegraphics[width=0.3\textwidth]{images/michael.\graphicsext}
 \vspace{-20pt}
 \end{wrapfigure}
-hat mehrjährige Erfahrung in JavaEE Entwicklungsumfeld in der Automotive und Immobilienbranche. Er administriert seit Jahren einen Linux-Root-Server für diverse Kunden.
+hat mehrjährige Erfahrung in JavaEE Entwicklungsumfeld in der Automotive und Immobilienbranche. Er administriert seit Jahren Linux-Server für diverse Kunden.
 \end{minipage}
 
 \bibliographystyle{apalike2}
